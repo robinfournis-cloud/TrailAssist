@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TrailAssist — Performance Trail Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg0: #0a0c0f;
+  --bg1: #111418;
+  --bg2: #181d23;
+  --bg3: #1f262f;
+  --bg4: #252d38;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text1: #f0f2f5;
+  --text2: #8a95a3;
+  --text3: #50606e;
+  --accent: #00d4aa;
+  --accent2: #0099ff;
+  --orange: #ff6b35;
+  --strava: #fc4c02;
+  --warn: #f5a623;
+  --danger: #e8445a;
+  --green: #00d4aa;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+  --r: 8px;
+  --r-lg: 12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg0);color:var(--text1);font-family:var(--font-body);font-size:14px;line-height:1.5;overflow-x:hidden}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg1)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+
+/* LAYOUT */
+.app{display:flex;flex-direction:column;height:100vh}
+
+/* TOP NAV */
+.topnav{display:flex;align-items:center;gap:0;padding:0 24px;background:var(--bg1);border-bottom:1px solid var(--border);height:56px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:10px;margin-right:32px;text-decoration:none}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:7px;display:flex;align-items:center;justify-content:center}
+.logo-text{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text1);letter-spacing:.5px}
+.logo-text span{color:var(--accent)}
+.nav-tabs{display:flex;height:56px;gap:2px}
+.nav-tab{display:flex;align-items:center;gap:8px;padding:0 18px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;letter-spacing:.2px}
+.nav-tab:hover{color:var(--text1)}
+.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.nav-tab svg{opacity:.7}
+.nav-tab.active svg{opacity:1}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.version-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--bg3);color:var(--text3);border:1px solid var(--border);font-family:var(--font-display);letter-spacing:.5px}
+
+/* RACE BANNER */
+.race-banner{background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;align-items:center;gap:16px;flex-shrink:0}
+.race-pill{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;font-size:12px}
+.race-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.race-name{font-weight:500;color:var(--text1)}
+.race-meta{color:var(--text3);font-size:11px}
+.stat-chip{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);padding:4px 10px;background:var(--bg3);border-radius:6px;border:1px solid var(--border)}
+.stat-chip strong{color:var(--text1)}
+.btn-change{margin-left:auto;font-size:12px;color:var(--accent);background:none;border:1px solid rgba(0,212,170,.3);border-radius:6px;padding:4px 12px;cursor:pointer;font-family:var(--font-body)}
+.btn-change:hover{background:rgba(0,212,170,.08)}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:24px;background:var(--bg0)}
+.section{display:none}.section.active{display:block}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 20px;margin-bottom:12px}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.card-title{font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--text1);letter-spacing:.3px;text-transform:uppercase}
+.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.metric{background:var(--bg3);border-radius:var(--r);padding:14px;border:1px solid var(--border)}
+.metric-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;font-family:var(--font-display)}
+.metric-val{font-size:24px;font-weight:600;color:var(--text1);font-family:var(--font-display);line-height:1}
+.metric-unit{font-size:12px;color:var(--text2);margin-left:3px}
+.metric-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;font-size:13px;font-family:var(--font-body);border-radius:var(--r);cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--text1);transition:all .15s}
+.btn:hover{background:var(--bg4);border-color:var(--border2)}
+.btn-accent{background:var(--accent);border-color:var(--accent);color:#000;font-weight:500}
+.btn-accent:hover{background:#00bfa0}
+.btn-strava{background:var(--strava);border-color:var(--strava);color:#fff;font-weight:500}
+.btn-strava:hover{background:#e04400}
+.btn-sm{padding:5px 12px;font-size:12px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;font-family:var(--font-display);letter-spacing:.3px;text-transform:uppercase}
+.badge-green{background:rgba(0,212,170,.15);color:var(--accent);border:1px solid rgba(0,212,170,.25)}
+.badge-blue{background:rgba(0,153,255,.15);color:var(--accent2);border:1px solid rgba(0,153,255,.25)}
+.badge-orange{background:rgba(245,166,35,.15);color:var(--warn);border:1px solid rgba(245,166,35,.25)}
+.badge-strava{background:rgba(252,76,2,.15);color:var(--strava);border:1px solid rgba(252,76,2,.25)}
+.badge-purple{background:rgba(127,119,221,.15);color:#7f77dd;border:1px solid rgba(127,119,221,.25)}
+.badge-gray{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+
+/* TABLES */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;padding:8px 10px;color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-display);border-bottom:1px solid var(--border);font-weight:600}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg3);cursor:pointer}
+.tbl td strong{color:var(--text1)}
+
+/* INPUTS */
+input[type=text],input[type=number],input[type=time],input[type=password],select,textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text1);font-family:var(--font-body);font-size:13px;padding:8px 12px;width:100%;outline:none;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+select option{background:var(--bg2)}
+label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-display);display:block;margin-bottom:5px}
+.form-row{margin-bottom:14px}
+.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.form-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
+
+/* SCORE BAR */
+.score-bar-bg{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;display:inline-block;width:60px;vertical-align:middle;margin-left:6px}
+.score-bar-fill{height:100%;border-radius:2px}
+
+/* AVATAR */
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:var(--font-display);flex-shrink:0}
+
+/* SOURCE CARDS */
+.source-card{border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;transition:all .15s;position:relative}
+.source-card:hover{border-color:var(--border2);background:var(--bg3)}
+.source-card.on-accent{border-color:rgba(0,212,170,.4);background:rgba(0,212,170,.05)}
+.source-card.on-strava{border-color:rgba(252,76,2,.4);background:rgba(252,76,2,.05)}
+.source-card.on-blue{border-color:rgba(0,153,255,.4);background:rgba(0,153,255,.05)}
+.source-card.on-purple{border-color:rgba(127,119,221,.4);background:rgba(127,119,221,.05)}
+.source-card.on-green{border-color:rgba(0,212,170,.4);background:rgba(0,212,170,.05)}
+.toggle-sw{width:38px;height:20px;border-radius:10px;position:relative;cursor:pointer;flex-shrink:0;transition:background .2s}
+.toggle-sw.on{background:var(--accent)}
+.toggle-sw.on-s{background:var(--strava)}
+.toggle-sw.on-b{background:var(--accent2)}
+.toggle-sw.on-p{background:#7f77dd}
+.toggle-sw.off{background:var(--bg4)}
+.toggle-knob{width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;transition:left .2s}
+.toggle-sw.on .toggle-knob,.toggle-sw.on-s .toggle-knob,.toggle-sw.on-b .toggle-knob,.toggle-sw.on-p .toggle-knob{left:20px}
+.toggle-sw.off .toggle-knob{left:2px}
+
+/* TIMELINE */
+.tl{padding-left:28px;position:relative}
+.tl::before{content:'';position:absolute;left:9px;top:0;bottom:0;width:1px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:4px}
+.tl-dot{position:absolute;left:-28px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;border:2px solid var(--bg0)}
+.tl-card{border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;background:var(--bg2)}
+.tl-card.c-green{border-left:2px solid var(--accent)}
+.tl-card.c-blue{border-left:2px solid var(--accent2)}
+.tl-card.c-orange{border-left:2px solid var(--warn)}
+.tl-card.c-gray{border-left:2px solid var(--text3)}
+
+/* CHECKLIST */
+.check-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;cursor:pointer;color:var(--text2)}
+.check-item input{cursor:pointer;accent-color:var(--accent)}
+.check-item.done{color:var(--text3);text-decoration:line-through}
+
+/* PROGRESS */
+.progress-bg{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .3s}
+
+/* PAGE TITLE */
+.page-title{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--text1);letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase}
+.page-sub{font-size:13px;color:var(--text3);margin-bottom:20px}
+
+/* RUNNER ROW */
+.runner-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;background:var(--bg2);cursor:pointer;transition:border-color .15s}
+.runner-row:hover{border-color:var(--border2)}
+.runner-row.selected{border-color:var(--accent);background:rgba(0,212,170,.04)}
+
+/* ACCENTLINE */
+.accentline{height:1px;background:linear-gradient(90deg,var(--accent),transparent);margin:16px 0;opacity:.3}
+
+/* PACE SEGMENT */
+.seg-bar-bg{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;flex:1}
+.seg-bar-fill{height:100%;border-radius:3px}
+
+/* CHART CONTAINER */
+.chart-wrap{position:relative;margin-top:10px}
+
+/* SECTION TABS */
+.sec-tabs{display:flex;gap:2px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:0}
+.sec-tab{padding:7px 14px;font-size:12px;font-family:var(--font-display);font-weight:600;letter-spacing:.3px;text-transform:uppercase;cursor:pointer;border:none;background:none;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s}
+.sec-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.sec-tab:hover{color:var(--text1)}
+.subsec{display:none}.subsec.active{display:block}
+
+/* STRAVA IMPORT STEP */
+.import-step{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.import-step:last-child{border-bottom:none}
+.step-num{width:26px;height:26px;border-radius:50%;background:rgba(252,76,2,.2);color:var(--strava);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px;font-family:var(--font-display)}
+
+/* MAPS BTN */
+.maps-btn{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--accent);border:1px solid rgba(0,212,170,.3);border-radius:6px;padding:4px 10px;background:rgba(0,212,170,.06);cursor:pointer;text-decoration:none;font-family:var(--font-body)}
+.maps-btn:hover{background:rgba(0,212,170,.12)}
+
+/* VERSION ROADMAP */
+.version-block{border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px;position:relative;overflow:hidden}
+.version-block::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.version-block.v1::before{background:var(--accent)}
+.version-block.v2::before{background:var(--strava)}
+.version-block.v3::before{background:var(--accent2)}
+.version-block.v4::before{background:#7f77dd}
+.v-tag{font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <a class="logo" href="#">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    </div>
+    <div class="logo-text">Trail<span>Assist</span></div>
+  </a>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showSection('gpx')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Course GPX
+    </button>
+    <button class="nav-tab" onclick="showSection('database')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Base coureurs
+    </button>
+    <button class="nav-tab" onclick="showSection('matching')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Matching
+    </button>
+    <button class="nav-tab" onclick="showSection('perf')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparatif perf
+    </button>
+    <button class="nav-tab" onclick="showSection('nutrition')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>Nutrition
+    </button>
+    <button class="nav-tab" onclick="showSection('assistance')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>Assistance
+    </button>
+  </div>
+  <div class="nav-right">
+    <span class="version-badge">V1 · Proto</span>
+    <button class="btn btn-sm btn-strava">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>Strava
+    </button>
+  </div>
+</nav>
+
+<!-- RACE BANNER -->
+<div class="race-banner">
+  <div class="race-pill">
+    <div class="race-dot"></div>
+    <span class="race-name">UTMJ Franco-Suisse 105km</span>
+    <span class="race-meta">2024</span>
+  </div>
+  <div class="stat-chip"><strong>104.1</strong> km</div>
+  <div class="stat-chip">+<strong>5 834</strong> m</div>
+  <div class="stat-chip">-<strong>5 924</strong> m</div>
+  <div class="stat-chip"><strong>6 284</strong> pts GPS</div>
+  <button class="btn-change">Changer de course</button>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- ==================== GPX ==================== -->
+<div id="sec-gpx" class="section active">
+  <div class="page-title">Course & Profil GPX</div>
+  <div class="page-sub">Tracé réel importé · 9 segments · 4 points d'assistance</div>
+
+  <div class="metric-grid">
+    <div class="metric"><div class="metric-label">Distance</div><div class="metric-val">104.1<span class="metric-unit">km</span></div><div class="metric-sub">Tracé GPS réel</div></div>
+    <div class="metric"><div class="metric-label">D+ total</div><div class="metric-val">5834<span class="metric-unit">m</span></div><div class="metric-sub">Calculé point/point</div></div>
+    <div class="metric"><div class="metric-label">Chrono cible</div><div class="metric-val" id="gpx-chrono">16h00</div><div class="metric-sub">Modifiable</div></div>
+    <div class="metric"><div class="metric-label">Allure moy.</div><div class="metric-val" id="gpx-pace">9.2<span class="metric-unit">mn/km</span></div><div class="metric-sub">Calculée</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Profil altimétrique — GPX réel</span>
+      <div class="badge badge-green">GPX chargé</div>
+    </div>
+    <div class="chart-wrap" style="height:220px"><canvas id="altChart" role="img" aria-label="Profil altimétrique UTMJ 105km"></canvas></div>
+    <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap">
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:12px;height:2px;background:var(--accent);display:inline-block;border-radius:1px"></span>Profil GPX</span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></span>Ravito</span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:8px solid var(--warn);display:inline-block"></span>Assistance</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Paramètres coureur</span>
+    </div>
+    <div class="form-grid">
+      <div class="form-row"><label class="lbl">Index UTMB</label><input type="number" id="p-idx" value="650" onchange="updateGpxStats()"/></div>
+      <div class="form-row"><label class="lbl">Chrono objectif (h)</label><input type="number" id="p-chrono" value="16" step="0.25" onchange="updateGpxStats()"/></div>
+      <div class="form-row"><label class="lbl">Heure de départ</label><input type="time" id="p-start" value="06:00"/></div>
+      <div class="form-row">
+        <label class="lbl">Force montée (1–5) · <span id="climb-out">3.5</span></label>
+        <input type="range" min="1" max="5" step="0.5" value="3.5" oninput="document.getElementById('climb-out').textContent=this.value" style="width:100%;accent-color:var(--accent)"/>
+      </div>
+      <div class="form-row">
+        <label class="lbl">Force descente (1–5) · <span id="desc-out">3</span></label>
+        <input type="range" min="1" max="5" step="0.5" value="3" oninput="document.getElementById('desc-out').textContent=this.value" style="width:100%;accent-color:var(--accent)"/>
+      </div>
+      <div class="form-row"><label class="lbl">Scénario</label>
+        <select id="p-scen">
+          <option value="nom">Nominal</option>
+          <option value="opt">Optimiste</option>
+          <option value="pes">Pessimiste</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="card-title">Tableau de passage</span></div>
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr><th>Point</th><th>Km</th><th>Alt</th><th>D+</th><th>D-</th><th>Passage</th><th>Tps seg</th><th>Allure</th><th>Assistance</th></tr></thead>
+      <tbody id="passage-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DATABASE ==================== -->
+<div id="sec-database" class="section">
+  <div class="page-title">Base de données coureurs</div>
+  <div class="page-sub">Sources actives · Roadmap d'intégration V1 → V4</div>
+
+  <div class="sec-tabs">
+    <button class="sec-tab active" onclick="showSubsec('db','sources')">Sources de données</button>
+    <button class="sec-tab" onclick="showSubsec('db','runners')">Coureurs saisis</button>
+    <button class="sec-tab" onclick="showSubsec('db','add')">Ajouter un coureur</button>
+    <button class="sec-tab" onclick="showSubsec('db','roadmap')">Roadmap V1→V4</button>
+  </div>
+
+  <div id="db-sources" class="subsec active">
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px">
+      <div class="source-card" id="sc-utmb" onclick="toggleSrc('utmb')">
+        <div style="position:absolute;top:12px;right:12px"><div class="toggle-sw off" id="sw-utmb"><div class="toggle-knob"></div></div></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:32px;height:32px;background:rgba(0,153,255,.15);border-radius:7px;display:flex;align-items:center;justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <div><div style="font-weight:500;color:var(--text1);font-size:13px">UTMB Index</div><div style="font-size:11px;color:var(--text3)">utmb.world</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.5">Recherche par nom sur utmb.world, saisie de l'index et des résultats depuis la fiche publique.</div>
+        <div style="display:flex;align-items:center;gap:6px"><div style="width:6px;height:6px;border-radius:50%;background:var(--warn)"></div><span style="font-size:11px;color:var(--warn)">Saisie manuelle — API non publique</span></div>
+      </div>
+      <div class="source-card" id="sc-betrail" onclick="toggleSrc('betrail')">
+        <div style="position:absolute;top:12px;right:12px"><div class="toggle-sw off" id="sw-betrail"><div class="toggle-knob"></div></div></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:32px;height:32px;background:rgba(0,212,170,.15);border-radius:7px;display:flex;align-items:center;justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div><div style="font-weight:500;color:var(--text1);font-size:13px">BeTrail</div><div style="font-size:11px;color:var(--text3)">betrail.run</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.5">Niveau BeTrail, historique de performances, résultats de courses. Fort sur les courses françaises.</div>
+        <div style="display:flex;align-items:center;gap:6px"><div style="width:6px;height:6px;border-radius:50%;background:var(--warn)"></div><span style="font-size:11px;color:var(--warn)">Saisie manuelle — API non publique</span></div>
+      </div>
+      <div class="source-card" id="sc-strava" onclick="toggleSrc('strava')">
+        <div style="position:absolute;top:12px;right:12px"><div class="toggle-sw off" id="sw-strava"><div class="toggle-knob"></div></div></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:32px;height:32px;background:rgba(252,76,2,.15);border-radius:7px;display:flex;align-items:center;justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--strava)"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+          </div>
+          <div><div style="font-weight:500;color:var(--text1);font-size:13px">Strava OAuth</div><div style="font-size:11px;color:var(--text3)">Activités réelles · Splits GPX</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.5">Connexion OAuth pour importer les vraies données de course : splits, FC, allure par segment calée sur le GPX.</div>
+        <div style="display:flex;align-items:center;gap:6px"><div style="width:6px;height:6px;border-radius:50%;background:var(--strava)"></div><span style="font-size:11px;color:var(--strava)">En attente de configuration OAuth</span></div>
+      </div>
+      <div class="source-card on-accent" id="sc-manual" onclick="toggleSrc('manual')">
+        <div style="position:absolute;top:12px;right:12px"><div class="toggle-sw on" id="sw-manual"><div class="toggle-knob"></div></div></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:32px;height:32px;background:rgba(0,212,170,.15);border-radius:7px;display:flex;align-items:center;justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </div>
+          <div><div style="font-weight:500;color:var(--text1);font-size:13px">Base manuelle</div><div style="font-size:11px;color:var(--text3)">Vos coureurs de référence</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.5">Coureurs saisis manuellement depuis UTMB, BeTrail, Strava. Base personnelle toujours disponible.</div>
+        <div style="display:flex;align-items:center;gap:6px"><div style="width:6px;height:6px;border-radius:50%;background:var(--accent)"></div><span style="font-size:11px;color:var(--accent)">3 coureurs disponibles · Actif</span></div>
+      </div>
+      <div class="source-card on-purple" id="sc-sim" onclick="toggleSrc('sim')" style="grid-column:1/-1">
+        <div style="position:absolute;top:12px;right:12px"><div class="toggle-sw on-p" id="sw-sim"><div class="toggle-knob"></div></div></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:32px;height:32px;background:rgba(127,119,221,.15);border-radius:7px;display:flex;align-items:center;justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7f77dd" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M4.22 4.22l2.12 2.12m11.32 11.32l2.12 2.12M2 12h3m14 0h3M4.22 19.78l2.12-2.12M18.66 5.34l2.12-2.12"/></svg>
+          </div>
+          <div><div style="font-weight:500;color:var(--text1);font-size:13px">Base simulée (proto)</div><div style="font-size:11px;color:var(--text3)">10 coureurs générés · Pour démos</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--text3);line-height:1.5">Profils réalistes pour tester toutes les fonctionnalités. Toujours disponible sans connexion.</div>
+      </div>
+    </div>
+    <div class="card" style="padding:12px 16px">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-display);margin-bottom:10px">Sources actives · Priorité de matching</div>
+      <div id="active-sources-list"></div>
+    </div>
+  </div>
+
+  <div id="db-runners" class="subsec">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:13px;color:var(--text3)">10 coureurs dans la base · 3 avec données complètes</div>
+      <button class="btn btn-sm btn-accent" onclick="showSubsec('db','add')">+ Ajouter</button>
+    </div>
+    <div id="runners-list"></div>
+  </div>
+
+  <div id="db-add" class="subsec">
+    <div class="card">
+      <div class="card-head"><span class="card-title">Nouveau coureur de référence</span></div>
+      <div style="margin-bottom:16px;padding:10px 12px;background:var(--bg3);border-radius:var(--r);border-left:2px solid var(--strava)">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-display);margin-bottom:6px">Sources recommandées</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <a href="https://utmb.world/fr/utmb-index" target="_blank" style="font-size:12px;color:var(--accent2);text-decoration:none;border:1px solid rgba(0,153,255,.3);border-radius:5px;padding:3px 10px;background:rgba(0,153,255,.06)">utmb.world →</a>
+          <a href="https://www.betrail.run" target="_blank" style="font-size:12px;color:var(--accent);text-decoration:none;border:1px solid rgba(0,212,170,.3);border-radius:5px;padding:3px 10px;background:rgba(0,212,170,.06)">betrail.run →</a>
+          <a href="https://www.strava.com" target="_blank" style="font-size:12px;color:var(--strava);text-decoration:none;border:1px solid rgba(252,76,2,.3);border-radius:5px;padding:3px 10px;background:rgba(252,76,2,.06)">strava.com →</a>
+          <a href="https://www.itra.run" target="_blank" style="font-size:12px;color:var(--warn);text-decoration:none;border:1px solid rgba(245,166,35,.3);border-radius:5px;padding:3px 10px;background:rgba(245,166,35,.06)">itra.run →</a>
+          <a href="https://www.livetrail.net" target="_blank" style="font-size:12px;color:var(--text2);text-decoration:none;border:1px solid var(--border2);border-radius:5px;padding:3px 10px">livetrail.net →</a>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-row"><label class="lbl">Nom</label><input type="text" id="add-name" placeholder="Prénom N."/></div>
+        <div class="form-row"><label class="lbl">Index UTMB</label><input type="number" id="add-idx" placeholder="650"/></div>
+        <div class="form-row"><label class="lbl">Niveau BeTrail</label><input type="number" id="add-bt" placeholder="12.5"/></div>
+        <div class="form-row"><label class="lbl">URL Strava activité</label><input type="text" id="add-url" placeholder="https://strava.com/activities/..."/></div>
+        <div class="form-row"><label class="lbl">Course de référence</label><input type="text" id="add-race" placeholder="UTMJ 2024"/></div>
+        <div class="form-row"><label class="lbl">Chrono (ex: 15h28)</label><input type="text" id="add-time" placeholder="15h28"/></div>
+        <div class="form-row"><label class="lbl">Distance (km)</label><input type="number" id="add-dist" placeholder="104"/></div>
+        <div class="form-row"><label class="lbl">D+ (m)</label><input type="number" id="add-dp" placeholder="5834"/></div>
+        <div class="form-row"><label class="lbl">FC moy / FC max</label><div style="display:flex;gap:6px"><input type="number" id="add-hrmoy" placeholder="148"/><input type="number" id="add-hrmax" placeholder="172"/></div></div>
+      </div>
+      <div class="accentline"></div>
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-display);margin-bottom:10px">Splits par segment GPX (calés sur les ravitos)</div>
+      <div id="add-seg-inputs"></div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">
+        <button class="btn btn-sm">Annuler</button>
+        <button class="btn btn-sm btn-accent" onclick="saveNewRunner()">Enregistrer le coureur</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="db-roadmap" class="subsec">
+    <div class="version-block v1">
+      <div class="v-tag" style="color:var(--accent)">V1 · Proto actuel</div>
+      <div style="font-weight:500;margin-bottom:4px">Base manuelle + données simulées</div>
+      <div style="font-size:12px;color:var(--text3)">Saisie manuelle depuis UTMB, BeTrail, Strava, ITRA, LiveTrail. Base simulée pour démos. 0 utilisateurs requis.</div>
+    </div>
+    <div class="version-block v2">
+      <div class="v-tag" style="color:var(--strava)">V2 · Mon compte Strava</div>
+      <div style="font-weight:500;margin-bottom:4px">OAuth Strava personnel — mes données + recherche coureurs</div>
+      <div style="font-size:12px;color:var(--text3)">Connexion de votre propre compte Strava. Recherche d'activités par mots-clés (UTMJ, trail...). Import automatique des splits sur les segments GPX.</div>
+    </div>
+    <div class="version-block v3">
+      <div class="v-tag" style="color:var(--accent2)">V3 · Partenariat UTMB / BeTrail</div>
+      <div style="font-weight:500;margin-bottom:4px">API officielle — base de données massive</div>
+      <div style="font-size:12px;color:var(--text3)">Accord commercial avec UTMB Index et/ou BeTrail pour accéder à la base complète des coureurs et de leurs résultats programmatiquement.</div>
+    </div>
+    <div class="version-block v4">
+      <div class="v-tag" style="color:#7f77dd">V4 · Communauté</div>
+      <div style="font-weight:500;margin-bottom:4px">Chaque utilisateur connecte son Strava</div>
+      <div style="font-size:12px;color:var(--text3)">Réseau communautaire — chaque trailer inscrit enrichit la base. Plus il y a d'utilisateurs, plus le matching est précis et les données réelles.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MATCHING ==================== -->
+<div id="sec-matching" class="section">
+  <div class="page-title">Matching coureurs</div>
+  <div class="page-sub">Classement par similarité · Index UTMB · Course · Profil D+/km</div>
+  <div class="metric-grid" id="match-metrics"></div>
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Classement de similarité</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:11px;color:var(--text3)">Sensibilité index ±</span>
+        <input type="number" id="m-sens" value="80" style="width:60px;font-size:12px;padding:4px 8px"/>
+        <button class="btn btn-sm btn-accent" onclick="renderMatching()">Recalculer</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>#</th><th>Coureur</th><th>Index</th><th>Course</th><th>Chrono</th><th>Source</th><th>Score</th><th>Type</th><th></th></tr></thead><tbody id="match-tbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ==================== PERF ==================== -->
+<div id="sec-perf" class="section">
+  <div class="page-title">Comparatif de performance</div>
+  <div class="page-sub">Multi-coureurs · Allures par segment · Superposition des profils</div>
+  <div class="sec-tabs">
+    <button class="sec-tab active" onclick="showSubsec('perf','allures')">Allures segments</button>
+    <button class="sec-tab" onclick="showSubsec('perf','superposition')">Superposition</button>
+    <button class="sec-tab" onclick="showSubsec('perf','terrain')">Par terrain</button>
+    <button class="sec-tab" onclick="showSubsec('perf','plan')">Plan calqué</button>
+  </div>
+  <div id="perf-allures" class="subsec active">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+      <span style="font-size:11px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Coureurs sélectionnés :</span>
+      <div id="perf-chips"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">Allure par segment (min/km — plus bas = plus rapide)</span></div>
+      <div class="chart-wrap" style="height:280px"><canvas id="paceChart" role="img" aria-label="Comparaison allures segments"></canvas></div>
+    </div>
+    <div class="card">
+      <div style="overflow-x:auto"><table class="tbl" id="seg-compare-tbl"><thead><tr id="seg-thead"></tr></thead><tbody id="seg-tbody"></tbody></table></div>
+    </div>
+  </div>
+  <div id="perf-superposition" class="subsec">
+    <div class="card">
+      <div class="card-head"><span class="card-title">Profils de vitesse superposés (km/h)</span></div>
+      <div class="chart-wrap" style="height:300px"><canvas id="superChart" role="img" aria-label="Superposition vitesses"></canvas></div>
+    </div>
+  </div>
+  <div id="perf-terrain" class="subsec">
+    <div class="card">
+      <div class="card-head"><span class="card-title">Vitesse par type de terrain</span></div>
+      <div class="chart-wrap" style="height:260px"><canvas id="terrainChart" role="img" aria-label="Vitesse par terrain"></canvas></div>
+    </div>
+  </div>
+  <div id="perf-plan" class="subsec">
+    <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+      <span style="font-size:11px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Référence :</span>
+      <select id="plan-ref" style="font-size:12px;padding:5px 10px;width:auto" onchange="renderPlanCalque()"></select>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="btn btn-sm" id="ps-nom" onclick="setPlanScen('nom',this)" style="background:rgba(0,212,170,.15);color:var(--accent);border-color:rgba(0,212,170,.3)">Nominal</button>
+        <button class="btn btn-sm" id="ps-opt" onclick="setPlanScen('opt',this)">Optimiste</button>
+        <button class="btn btn-sm" id="ps-pes" onclick="setPlanScen('pes',this)">Pessimiste</button>
+      </div>
+    </div>
+    <div id="plan-calque-content"></div>
+  </div>
+</div>
+
+<!-- ==================== NUTRITION ==================== -->
+<div id="sec-nutrition" class="section">
+  <div class="page-title">Plan nutritionnel</div>
+  <div class="page-sub">Calculé sur la durée de course estimée · Par segment</div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Références nutritionnelles</span></div>
+    <div class="form-grid">
+      <div class="form-row"><label class="lbl">Glucides (g/h)</label><input type="number" id="n-gluc" value="55" onchange="renderNutri()"/></div>
+      <div class="form-row"><label class="lbl">Protéines (g/h)</label><input type="number" id="n-prot" value="5" onchange="renderNutri()"/></div>
+      <div class="form-row"><label class="lbl">Sodium (g/h)</label><input type="number" id="n-sod" value="1.5" step="0.1" onchange="renderNutri()"/></div>
+      <div class="form-row"><label class="lbl">Eau (mL/h)</label><input type="number" id="n-eau" value="700" onchange="renderNutri()"/></div>
+    </div>
+  </div>
+  <div class="metric-grid" id="nutri-totals"></div>
+  <div id="nutri-segments"></div>
+</div>
+
+<!-- ==================== ASSISTANCE ==================== -->
+<div id="sec-assistance" class="section">
+  <div class="page-title">Roadmap assistance</div>
+  <div class="page-sub">Timeline · Fenêtres d'attente · Check-lists · Itinéraires</div>
+  <div class="sec-tabs">
+    <button class="sec-tab active" onclick="showSubsec('assist','timeline')">Timeline</button>
+    <button class="sec-tab" onclick="showSubsec('assist','checklist')">Check-lists sacs</button>
+    <button class="sec-tab" onclick="showSubsec('assist','itineraires')">Itinéraires</button>
+  </div>
+  <div id="assist-timeline" class="subsec active">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+      <div><label class="lbl">Heure départ</label><input type="time" id="a-start" value="06:00" style="width:120px" onchange="renderTimeline()"/></div>
+      <div><label class="lbl">Marge optimiste (min)</label><input type="number" id="a-mopt" value="20" style="width:80px" onchange="renderTimeline()"/></div>
+      <div><label class="lbl">Marge pessimiste (min)</label><input type="number" id="a-mpes" value="40" style="width:80px" onchange="renderTimeline()"/></div>
+      <div><label class="lbl">Alerte avant (min)</label><input type="number" id="a-alert" value="45" style="width:80px" onchange="renderTimeline()"/></div>
+    </div>
+    <div id="timeline-content"></div>
+  </div>
+  <div id="assist-checklist" class="subsec">
+    <div id="checklist-content"></div>
+  </div>
+  <div id="assist-itineraires" class="subsec">
+    <div id="itin-content"></div>
+  </div>
+</div>
+
+</div><!-- end content -->
+</div><!-- end app -->
+
+<script>
+// ===== DATA =====
+const GPX_PTS=[{d:0,e:1106},{d:0.64,e:1124},{d:1.57,e:1128},{d:3.02,e:1085},{d:5.06,e:910},{d:7.37,e:842},{d:10.21,e:884},{d:11.4,e:1032},{d:12.71,e:1002},{d:15.27,e:967},{d:17.57,e:831},{d:19.15,e:700},{d:20.63,e:808},{d:22.66,e:1026},{d:24.7,e:1158},{d:26.78,e:1069},{d:28.65,e:1143},{d:31.66,e:1134},{d:33.67,e:1353},{d:35.54,e:1258},{d:37.4,e:1088},{d:39.78,e:1108},{d:42.46,e:1096},{d:45.35,e:1112},{d:47.56,e:1123},{d:48.89,e:1074},{d:51.0,e:1071},{d:53.79,e:948},{d:56.55,e:1003},{d:58.72,e:1122},{d:61.35,e:1123},{d:64.23,e:1191},{d:67.6,e:1231},{d:70.79,e:1427},{d:72.56,e:1329},{d:75.04,e:1012},{d:78.37,e:1003},{d:80.91,e:1020},{d:83.81,e:1211},{d:86.64,e:1253},{d:89.36,e:1520},{d:92.27,e:1282},{d:94.93,e:1228},{d:97.57,e:988},{d:100.62,e:1001},{d:103.64,e:1062},{d:104.07,e:1016}];
+const SEGS=[
+  {name:'Départ → R1',from:'Les Rousses',to:'Morbier',k0:0,k1:19,dp:720,dm:980},
+  {name:'R1 → R2',from:'Morbier',to:'Bellefontaine',k0:19,k1:26,dp:280,dm:120},
+  {name:'R2 → R3',from:'Bellefontaine',to:'Chapelle des Bois',k0:26,k1:36,dp:480,dm:320},
+  {name:'R3 → R4',from:'Chapelle des Bois',to:'Chaux Neuve',k0:36,k1:48,dp:390,dm:450},
+  {name:'R4 → R5',from:'Chaux Neuve',to:'Mouthe',k0:48,k1:56,dp:160,dm:210},
+  {name:'R5 → R6',from:'Mouthe',to:'Fort du Risoux',k0:56,k1:70,dp:820,dm:650},
+  {name:'R6 → R7',from:'Fort du Risoux',to:'Vallée de Joux',k0:70,k1:83,dp:610,dm:720},
+  {name:'R7 → R8',from:'Vallée de Joux',to:'Col Marchairuz',k0:83,k1:93,dp:740,dm:580},
+  {name:'R8 → Arr.',from:'Col Marchairuz',to:'Les Rousses',k0:93,k1:104,dp:430,dm:890}
+];
+const RAVITOS=[
+  {name:'Départ',loc:'Les Rousses',km:0,assist:false},
+  {name:'Ravito 1',loc:'Morbier',km:19,assist:true},
+  {name:'Ravito 2',loc:'Bellefontaine',km:26,assist:false},
+  {name:'Ravito 3',loc:'Chapelle des Bois',km:36,assist:true},
+  {name:'Ravito 4',loc:'Chaux Neuve',km:48,assist:false},
+  {name:'Ravito 5',loc:'Mouthe',km:56,assist:true},
+  {name:'Ravito 6',loc:'Fort du Risoux',km:70,assist:false},
+  {name:'Ravito 7',loc:'Vallée de Joux',km:83,assist:true},
+  {name:'Ravito 8',loc:'Col Marchairuz',km:93,assist:false},
+  {name:'Arrivée',loc:'Les Rousses',km:104,assist:false}
+];
+const RUNNERS=[
+  {id:1,name:'Jérémy F.',ini:'JF',col:'#00d4aa',idx:648,race:'UTMJ 2024',dist:104,dp:5820,chrono:15.5,best:15.1,worst:16.2,paces:[8.3,8.3,8.4,8.9,8.3,10.1,9.2,10.2,8.3],url:'https://www.strava.com/activities/demo1'},
+  {id:2,name:'Thomas B.',ini:'TB',col:'#0099ff',idx:671,race:'UTMJ 2023',dist:104,dp:5820,chrono:14.8,best:14.3,worst:15.6,paces:[7.6,7.7,7.8,8.3,7.4,9.1,8.4,9.4,7.6]},
+  {id:3,name:'Marc D.',ini:'MD',col:'#ff6b35',idx:628,race:'Trail Jura 100k',dist:98,dp:5400,chrono:16.2,best:15.8,worst:17.1,paces:[9.5,8.1,9.3,9.7,8.5,11.8,10.8,12.3,9.9]},
+  {id:4,name:'Sébastien L.',ini:'SL',col:'#7f77dd',idx:695,race:'UTMJ 2024',dist:104,dp:5820,chrono:14.2,best:13.9,worst:14.8,paces:[8.3,7.1,8.1,8.4,7.3,10.1,9.3,10.7,8.5]},
+  {id:5,name:'Pierre A.',ini:'PA',col:'#f5a623',idx:635,race:'UTMJ 2022',dist:104,dp:5820,chrono:16.8,best:16.1,worst:17.9,paces:[9.8,8.4,9.7,10.1,8.8,12.2,11.2,12.8,10.3]},
+  {id:6,name:'Antoine R.',ini:'AR',col:'#e8445a',idx:642,race:'UTMJ 2024',dist:104,dp:5820,chrono:15.9,best:15.4,worst:16.7,paces:[9.3,8.0,9.1,9.5,8.3,11.6,10.7,12.1,9.6]},
+  {id:7,name:'Lucas M.',ini:'LM',col:'#5dcaa5',idx:660,race:'TDS 2023',dist:145,dp:9100,chrono:26.5,best:25.8,worst:28.1,paces:[9.3,8.0,9.1,9.5,8.3,11.5,10.6,12.0,9.7]},
+  {id:8,name:'Nicolas V.',ini:'NV',col:'#a78bfa',idx:678,race:'CCC 2023',dist:100,dp:6100,chrono:18.2,best:17.6,worst:19.0,paces:[8.9,7.6,8.7,9.0,7.9,10.9,10.1,11.5,9.1]},
+  {id:9,name:'Florian B.',ini:'FB',col:'#fbbf24',idx:622,race:'UTMJ 2023',dist:104,dp:5820,chrono:17.1,best:16.5,worst:18.2,paces:[10.0,8.6,9.9,10.3,9.0,12.5,11.5,13.1,10.5]},
+  {id:10,name:'Mathieu C.',ini:'MC',col:'#34d399',idx:658,race:'Trail Jura 100k',dist:98,dp:5400,chrono:15.7,best:15.2,worst:16.5,paces:[9.2,7.9,9.0,9.3,8.2,11.3,10.4,11.9,9.5]}
+];
+const ASSIST_PTS=[
+  {id:1,name:'Ravito 1',loc:'Morbier',km:19,lat:46.5374,lon:6.0161,driveMin:25,note:'Parking place du village',
+   nomH:2.63,optH:2.37,pesH:2.95,nextDrive:35,nextLat:46.5972,nextLon:6.1130,
+   checklist:['Gel énergie x2','Purée décath x1','Pâte de fruit x2','Bonbon ta x1','Gélule sel x1','Flasque effort x2','Flasque eau x1','Crème anti-frottement','Veste imperméable']},
+  {id:2,name:'Ravito 3',loc:'Chapelle des Bois',km:36,lat:46.5972,lon:6.1130,driveMin:35,note:'Parking forêt — 500m du ravito',
+   nomH:5.17,optH:4.73,pesH:5.83,nextDrive:28,nextLat:46.7101,nextLon:6.1927,
+   checklist:['Gel énergie x2','Purée décath x1','Gélule sel x1','Flasque effort x2','Lampe frontale','Batterie téléphone','Collation salée']},
+  {id:3,name:'Ravito 5',loc:'Mouthe',km:56,lat:46.7101,lon:6.1927,driveMin:28,note:'Centre village',
+   nomH:8.07,optH:7.35,pesH:9.17,nextDrive:42,nextLat:46.4843,nextLon:6.0618,
+   checklist:['Gel énergie x3','Purée x2','Gélule sel x1','Vêtements chauds','Chaussures sèches','Soupe thermos','Bas compression']},
+  {id:4,name:'Arrivée',loc:'Les Rousses',km:104,lat:46.4843,lon:6.0618,driveMin:42,note:'Zone arrivée officielle',
+   nomH:15.47,optH:14.18,pesH:17.0,nextDrive:0,nextLat:null,nextLon:null,
+   checklist:['Vêtements de rechange','Serviette','Nourriture récup','Boisson isotonique','Couverture/duvet']}
+];
+
+// ===== STATE =====
+let selected=new Set([1,2,3,4]);
+let planScen='nom';
+let checkStates={};
+let srcState={utmb:false,betrail:false,strava:false,manual:true,sim:true};
+let charts={};
+let altChartInst=null;
+
+// ===== NAV =====
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach((b,i)=>b.classList.toggle('active',['gpx','database','matching','perf','nutrition','assistance'][i]===id));
+  document.getElementById('sec-'+id).classList.add('active');
+  if(id==='gpx')initGpx();
+  if(id==='matching')renderMatching();
+  if(id==='perf')renderPerf();
+  if(id==='nutrition')renderNutri();
+  if(id==='assistance')renderTimeline();
+}
+function showSubsec(parent,id){
+  document.querySelectorAll(`#sec-${parent} .subsec`).forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll(`#sec-${parent} .sec-tab`).forEach((b,i)=>{
+    const ids={database:['sources','runners','add','roadmap'],perf:['allures','superposition','terrain','plan'],assist:['timeline','checklist','itineraires']}[parent]||[];
+    b.classList.toggle('active',ids[i]===id);
+  });
+  document.getElementById(`${parent}-${id}`)?.classList.add('active');
+  if(parent==='perf'&&id==='allures')renderPerfAllures();
+  if(parent==='perf'&&id==='superposition')renderSuperposition();
+  if(parent==='perf'&&id==='terrain')renderTerrain();
+  if(parent==='perf'&&id==='plan')renderPlanCalque();
+  if(parent==='assist'&&id==='checklist')renderChecklist();
+  if(parent==='assist'&&id==='itineraires')renderItineraires();
+  if(parent==='database'&&id==='runners')renderRunnersList();
+  if(parent==='database'&&id==='add')renderAddSegs();
+}
+
+// ===== HELPERS =====
+function getEle(km){for(let i=1;i<GPX_PTS.length;i++){if(GPX_PTS[i].d>=km){const t=(km-GPX_PTS[i-1].d)/(GPX_PTS[i].d-GPX_PTS[i-1].d);return Math.round(GPX_PTS[i-1].e+(GPX_PTS[i].e-GPX_PTS[i-1].e)*t);}}return GPX_PTS[GPX_PTS.length-1].e;}
+function hms(h){const hh=Math.floor(h),mm=Math.round((h-hh)*60);return mm===60?`${hh+1}h00`:`${hh}h${String(mm).padStart(2,'0')}`;}
+function parseH(s){if(!s)return 0;const m=s.match(/(\d+)h(\d+)?/);return m?+m[1]+(+(m[2]||0))/60:0;}
+function addH(base,h){const t=base+h;const hh=Math.floor(t)%24;const mm=Math.round((t%1)*60);return`${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;}
+function parseTime(t){const[h,m]=t.split(':').map(Number);return h+m/60;}
+function segTime(s,factor=1){const t=+document.getElementById('p-chrono').value;const bl=t/104.1;return(s.km*bl+(s.dp/1000)*0.8+(s.dm/1000)*0.25)*factor;}
+function getPaces(r,sc){const f=sc==='opt'?r.best/r.chrono:sc==='pes'?r.worst/r.chrono:1;return r.paces.map(p=>+(p*f).toFixed(2));}
+function matchScore(r){const my=+document.getElementById('myIdx')||650;const myI=document.getElementById('p-idx')?+document.getElementById('p-idx').value:650;const sens=+document.getElementById('m-sens')?.value||80;const d=Math.abs(r.idx-myI);if(d>sens)return 0;let sc=100-(d/sens)*40;if(r.race.includes('UTMJ'))sc+=30;else if(r.dist>=90&&r.dist<=115&&r.dp>=4800)sc+=15;sc-=Math.abs(r.dp/r.dist-5834/104.1)*0.8;if(r.dist>=80)sc+=5;return Math.max(0,Math.min(100,Math.round(sc)));}
+
+// ===== GPX =====
+function initGpx(){
+  updateGpxStats();
+  renderAltChart();
+  renderPassage();
+}
+function updateGpxStats(){
+  const t=+document.getElementById('p-chrono').value;
+  const pace=(t/104.1*60).toFixed(1);
+  document.getElementById('gpx-chrono').textContent=hms(t);
+  document.getElementById('gpx-pace').innerHTML=`${pace}<span class="metric-unit">mn/km</span>`;
+  renderPassage();
+}
+function renderAltChart(){
+  const ctx=document.getElementById('altChart');
+  if(!ctx)return;
+  if(altChartInst)altChartInst.destroy();
+  const rvData=RAVITOS.map(r=>({x:r.km,y:getEle(r.km),name:r.name,assist:r.assist}));
+  altChartInst=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:GPX_PTS.map(p=>p.d),
+      datasets:[
+        {data:GPX_PTS.map(p=>p.e),borderColor:'#00d4aa',backgroundColor:'rgba(0,212,170,0.06)',fill:true,tension:0.3,pointRadius:0,borderWidth:1.5},
+        {data:rvData.map(r=>({x:r.x,y:r.y})),borderColor:'transparent',backgroundColor:rvData.map(r=>r.assist?'#f5a623':'#00d4aa'),pointRadius:rvData.map(r=>r.km>0&&r.km<104?7:4),showLine:false,pointStyle:rvData.map(r=>r.assist?'triangle':'circle')}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{ticks:{color:'#50606e',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#50606e',font:{size:10},maxTicksLimit:12},grid:{color:'rgba(255,255,255,0.04)'}}}}
+  });
+}
+function renderPassage(){
+  const tbody=document.getElementById('passage-tbody');
+  if(!tbody)return;
+  const t=+document.getElementById('p-chrono').value;
+  let cum=0;tbody.innerHTML='';
+  RAVITOS.forEach((rv,i)=>{
+    if(i>0){const s=SEGS[i-1];cum+=segTime(s);}
+    const ele=getEle(rv.km);
+    const seg=i>0?SEGS[i-1]:null;
+    tbody.innerHTML+=`<tr>
+      <td><strong>${rv.name}</strong><br><span style="font-size:11px;color:var(--text3)">${rv.loc}</span></td>
+      <td><strong style="color:var(--text1)">${rv.km}</strong></td>
+      <td>${ele}m</td>
+      <td style="color:var(--accent2)">${seg?'+'+seg.dp+'m':'—'}</td>
+      <td style="color:var(--accent)">${seg?'-'+seg.dm+'m':'—'}</td>
+      <td><strong style="color:var(--text1)">${i===0?'Départ':hms(cum)}</strong></td>
+      <td style="color:var(--text3)">${seg?hms(segTime(seg)):'—'}</td>
+      <td>${seg?(segTime(seg)/seg.km*60).toFixed(1)+' mn/km':'—'}</td>
+      <td>${rv.assist?'<span class="badge badge-green">Assistance</span>':'—'}</td>
+    </tr>`;
+  });
+}
+
+// ===== DATABASE =====
+function toggleSrc(id){
+  srcState[id]=!srcState[id];
+  const cls={utmb:'on-blue',betrail:'on-accent',strava:'on-strava',manual:'on-accent',sim:'on-purple'};
+  const swCls={utmb:'on-b',betrail:'on',strava:'on-s',manual:'on',sim:'on-p'};
+  const sw=document.getElementById('sw-'+id);
+  const card=document.getElementById('sc-'+id);
+  if(srcState[id]){sw.className=`toggle-sw ${swCls[id]}`;card.className=`source-card ${cls[id]}`;}
+  else{sw.className='toggle-sw off';card.className='source-card';}
+  renderActiveSources();
+}
+function renderActiveSources(){
+  const names={utmb:'UTMB Index',betrail:'BeTrail',strava:'Strava OAuth',manual:'Base manuelle',sim:'Base simulée'};
+  const cols={utmb:'#0099ff',betrail:'#00d4aa',strava:'#fc4c02',manual:'#00d4aa',sim:'#7f77dd'};
+  const active=Object.entries(srcState).filter(([,v])=>v);
+  const el=document.getElementById('active-sources-list');
+  if(!el)return;
+  if(!active.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:6px 0">Aucune source active.</div>';return;}
+  el.innerHTML=active.map(([id],i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">${i===active.length-1?'':''}<div style="width:6px;height:6px;border-radius:50%;background:${cols[id]}"></div><strong style="color:var(--text1)">${names[id]}</strong><span style="margin-left:auto;font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.3px">priorité ${i+1}</span></div>`).join('');
+}
+function renderRunnersList(){
+  const c=document.getElementById('runners-list');
+  if(!c)return;
+  c.innerHTML=RUNNERS.map(r=>`
+    <div class="runner-row ${selected.has(r.id)?'selected':''}" onclick="toggleRunner(${r.id})">
+      <div class="avatar" style="background:${r.col}22;color:${r.col}">${r.ini}</div>
+      <div style="flex:1"><div style="font-weight:500;color:var(--text1)">${r.name} <span style="font-size:11px;font-weight:400;color:var(--text3)">Index ${r.idx}</span></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px">${r.race} · ${r.chrono}h · +${r.dp}m</div></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${r.url?`<span class="badge badge-strava">Strava</span>`:''}
+        <span class="badge badge-green">${matchScore(r)}/100</span>
+        ${selected.has(r.id)?'<span class="badge badge-blue">Sélectionné</span>':''}
+      </div>
+    </div>`).join('');
+}
+function toggleRunner(id){
+  if(selected.has(id))selected.delete(id);else{if(selected.size>=5){selected.delete([...selected][0]);}selected.add(id);}
+  renderRunnersList();
+}
+function renderAddSegs(){
+  const c=document.getElementById('add-seg-inputs');
+  if(!c)return;
+  c.innerHTML=`<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);margin-bottom:4px"><span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Segment</span><span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Dist</span><span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">D+</span><span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Temps</span><span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Allure</span></div>`+
+  SEGS.map((s,i)=>{const d=s.k1-s.k0;return`<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+    <div><div style="font-size:12px;font-weight:500;color:var(--text1)">${s.from}</div><div style="font-size:10px;color:var(--text3)">${s.k0}→${s.k1}km</div></div>
+    <div style="font-size:12px;color:var(--text3)">${d}km</div>
+    <div style="font-size:12px;color:#5ea3d4">+${s.dp}m</div>
+    <input type="text" id="as-t${i}" placeholder="1h24" style="font-size:12px;padding:5px 8px"/>
+    <input type="number" id="as-p${i}" placeholder="8.4" step="0.1" style="font-size:12px;padding:5px 8px"/>
+  </div>`}).join('');
+}
+function saveNewRunner(){
+  const name=document.getElementById('add-name')?.value?.trim();
+  if(!name)return;
+  const newR={id:Date.now(),name,ini:name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),
+    col:'#'+Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0'),
+    idx:+document.getElementById('add-idx')?.value||0,
+    race:document.getElementById('add-race')?.value||'',
+    dist:+document.getElementById('add-dist')?.value||104,
+    dp:+document.getElementById('add-dp')?.value||5834,
+    chrono:parseH(document.getElementById('add-time')?.value)||15,
+    best:parseH(document.getElementById('add-time')?.value)*0.95||14,
+    worst:parseH(document.getElementById('add-time')?.value)*1.1||16.5,
+    paces:SEGS.map((_,i)=>+document.getElementById(`as-p${i}`)?.value||9),
+    url:document.getElementById('add-url')?.value||''};
+  RUNNERS.push(newR);
+  alert(`Coureur "${name}" ajouté avec succès !`);
+  showSubsec('db','runners');
+}
+
+// ===== MATCHING =====
+function renderMatching(){
+  const ranked=RUNNERS.map(r=>({...r,sc:matchScore(r)})).filter(r=>r.sc>0).sort((a,b)=>b.sc-a.sc);
+  const myI=+document.getElementById('p-idx')?.value||650;
+  document.getElementById('match-metrics').innerHTML=`
+    <div class="metric"><div class="metric-label">Mon index</div><div class="metric-val">${myI}</div></div>
+    <div class="metric"><div class="metric-label">Matchés</div><div class="metric-val">${ranked.length}<span class="metric-unit">/${RUNNERS.length}</span></div></div>
+    <div class="metric"><div class="metric-label">Top match</div><div class="metric-val" style="font-size:16px">${ranked[0]?.name||'—'}</div></div>
+    <div class="metric"><div class="metric-label">Score top</div><div class="metric-val">${ranked[0]?.sc||0}<span class="metric-unit">/100</span></div></div>`;
+  const tbody=document.getElementById('match-tbody');
+  tbody.innerHTML='';
+  ranked.forEach((r,i)=>{
+    const isUTMJ=r.race.includes('UTMJ');
+    const isSel=selected.has(r.id);
+    const tr=document.createElement('tr');
+    if(isSel)tr.style.background='rgba(0,212,170,0.04)';
+    tr.onclick=()=>{toggleRunner(r.id);renderMatching();};
+    tr.innerHTML=`<td style="color:var(--text3);font-weight:600">${i+1}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:${r.col}22;color:${r.col};width:28px;height:28px;font-size:10px">${r.ini}</div><strong>${r.name}</strong></div></td>
+      <td>${r.idx}</td>
+      <td style="font-size:12px">${r.race}</td>
+      <td style="font-weight:500;color:var(--text1)">${r.chrono}h</td>
+      <td>${r.url?'<span class="badge badge-strava">Strava</span>':'<span class="badge badge-gray">Manuel</span>'}</td>
+      <td><strong style="color:var(--text1)">${r.sc}</strong><span class="score-bar-bg"><span class="score-bar-fill" style="width:${r.sc}%;background:${r.col}"></span></span></td>
+      <td>${isUTMJ?'<span class="badge badge-green">Même course</span>':r.dist>=90?'<span class="badge badge-orange">Similaire</span>':'<span class="badge badge-blue">Index</span>'}</td>
+      <td><button class="btn btn-sm ${isSel?'btn-accent':''}" onclick="event.stopPropagation();toggleRunner(${r.id});renderMatching()">${isSel?'✓ Sél.':'+ Choisir'}</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ===== PERF =====
+function renderPerf(){renderPerfAllures();}
+function selList(){return RUNNERS.filter(r=>selected.has(r.id));}
+function renderPerf_chips(containerId){
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  el.innerHTML=selList().map(r=>`<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px 3px 5px;border-radius:20px;font-size:11px;border:1px solid ${r.col}44;background:${r.col}12;cursor:pointer;margin:2px" onclick="toggleRunner(${r.id});renderPerf()"><span style="width:8px;height:8px;border-radius:50%;background:${r.col}"></span>${r.name}</span>`).join('');
+}
+function renderPerfAllures(){
+  renderPerf_chips('perf-chips');
+  const sl=selList();
+  if(!sl.length)return;
+  const ctx=document.getElementById('paceChart');
+  if(charts.pace)charts.pace.destroy();
+  charts.pace=new Chart(ctx,{
+    type:'bar',
+    data:{labels:SEGS.map(s=>s.name.split(' → ')[0].substring(0,8)),
+      datasets:sl.map(r=>({label:r.name,data:getPaces(r,planScen),backgroundColor:r.col+'bb',borderRadius:3}))},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{reverse:true,ticks:{color:'#50606e',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#50606e',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}}}}
+  });
+  const thead=document.getElementById('seg-thead');
+  const tbody=document.getElementById('seg-tbody');
+  thead.innerHTML=`<th>Segment</th><th>D+</th>${sl.map(r=>`<th style="color:${r.col}">${r.ini}</th>`).join('')}<th>Moy.</th>`;
+  tbody.innerHTML='';
+  SEGS.forEach((s,i)=>{
+    const vals=sl.map(r=>getPaces(r,planScen)[i]);
+    const avg=+(vals.reduce((a,v)=>a+v,0)/vals.length).toFixed(2);
+    const min=Math.min(...vals),max=Math.max(...vals);
+    tbody.innerHTML+=`<tr><td>${s.name}</td><td style="color:#5ea3d4">+${s.dp}m</td>
+      ${vals.map(v=>`<td style="font-weight:500;color:${v===min&&sl.length>1?'#00d4aa':v===max&&sl.length>1?'#e8445a':'var(--text1)'}">${v}</td>`).join('')}
+      <td style="color:var(--text2)">${avg}</td></tr>`;
+  });
+}
+function renderSuperposition(){
+  const sl=selList();
+  const ctx=document.getElementById('superChart');
+  if(charts.super)charts.super.destroy();
+  charts.super=new Chart(ctx,{
+    type:'line',
+    data:{labels:SEGS.map(s=>s.name.split(' → ')[0].substring(0,8)),
+      datasets:sl.map(r=>({label:r.name,data:getPaces(r,planScen).map(p=>+(60/p).toFixed(2)),borderColor:r.col,backgroundColor:'transparent',tension:0.4,pointRadius:4,borderWidth:2}))},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{ticks:{color:'#50606e',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#50606e',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}}}}
+  });
+}
+function renderTerrain(){
+  const sl=selList();
+  const conds=[s=>s.dp/(s.k1-s.k0)>40,s=>s.dp/(s.k1-s.k0)>20&&s.dp/(s.k1-s.k0)<=40,s=>s.dp/(s.k1-s.k0)<=20&&s.dm/(s.k1-s.k0)<=20,s=>s.dm/(s.k1-s.k0)>40];
+  const ctx=document.getElementById('terrainChart');
+  if(charts.terrain)charts.terrain.destroy();
+  charts.terrain=new Chart(ctx,{
+    type:'bar',
+    data:{labels:['Montée forte','Montée mod.','Plat/mixte','Descente forte'],
+      datasets:sl.map(r=>({label:r.name,data:conds.map(c=>{const idx=SEGS.map((s,i)=>c(s)?i:-1).filter(i=>i>=0);if(!idx.length)return 0;const ps=idx.map(i=>getPaces(r,planScen)[i]);return +(60/(ps.reduce((a,p)=>a+p,0)/ps.length)).toFixed(2);}),backgroundColor:r.col+'bb',borderRadius:3}))},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{ticks:{color:'#50606e',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#50606e',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}}}}
+  });
+}
+function setPlanScen(s,btn){
+  planScen=s;
+  ['ps-nom','ps-opt','ps-pes'].forEach(id=>{const b=document.getElementById(id);b.style.background='';b.style.color='';b.style.borderColor='';});
+  btn.style.background='rgba(0,212,170,.15)';btn.style.color='var(--accent)';btn.style.borderColor='rgba(0,212,170,.3)';
+  renderPlanCalque();
+}
+function renderPlanCalque(){
+  const sl=selList();
+  const sel=document.getElementById('plan-ref');
+  if(sel&&sel.innerHTML==='')sel.innerHTML=sl.map(r=>`<option value="${r.id}">${r.name}</option>`).join('');
+  const rid=+sel?.value||sl[0]?.id;
+  const r=RUNNERS.find(x=>x.id===rid)||sl[0];
+  if(!r){document.getElementById('plan-calque-content').innerHTML='';return;}
+  const mp=getPaces(r,planScen);
+  const totalH=mp.reduce((a,p,i)=>a+p*(SEGS[i].k1-SEGS[i].k0)/60,0);
+  let cum=0;
+  let html=`<div class="metric-grid">
+    <div class="metric"><div class="metric-label">Chrono estimé</div><div class="metric-val">${hms(totalH)}</div></div>
+    <div class="metric"><div class="metric-label">Allure moy.</div><div class="metric-val">${(totalH*60/104.1).toFixed(1)}<span class="metric-unit">mn/km</span></div></div>
+    <div class="metric"><div class="metric-label">Référence</div><div class="metric-val" style="font-size:14px">${r.name}</div></div>
+    <div class="metric"><div class="metric-label">Scénario</div><div class="metric-val" style="font-size:14px">${planScen==='nom'?'Nominal':planScen==='opt'?'Optimiste':'Pessimiste'}</div></div>
+  </div><div class="card"><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Point</th><th>Lieu</th><th>Km</th><th>Passage</th><th>Tps seg</th><th>Allure</th><th>Assistance</th></tr></thead><tbody>`;
+  RAVITOS.forEach((rv,i)=>{
+    if(i>0)cum+=mp[i-1]*(SEGS[i-1].k1-SEGS[i-1].k0)/60;
+    html+=`<tr style="${rv.assist?'background:rgba(0,212,170,0.05)':''}"><td><strong>${rv.name}</strong></td><td style="color:var(--text3)">${rv.loc}</td><td>${rv.km}</td><td><strong style="color:var(--text1)">${i===0?'Départ':hms(cum)}</strong></td><td style="color:var(--text3)">${i===0?'—':hms(mp[i-1]*(SEGS[i-1].k1-SEGS[i-1].k0)/60)}</td><td>${i===0?'—':`${mp[i-1]} mn/km`}</td><td>${rv.assist?'<span class="badge badge-green">Assistance</span>':'—'}</td></tr>`;
+  });
+  html+='</tbody></table></div></div>';
+  document.getElementById('plan-calque-content').innerHTML=html;
+}
+
+// ===== NUTRITION =====
+function renderNutri(){
+  const t=+document.getElementById('p-chrono').value||16;
+  const g=+document.getElementById('n-gluc').value||55;
+  const p=+document.getElementById('n-prot').value||5;
+  const s=+document.getElementById('n-sod').value||1.5;
+  const e=+document.getElementById('n-eau').value||700;
+  document.getElementById('nutri-totals').innerHTML=`
+    <div class="metric"><div class="metric-label">Glucides totaux</div><div class="metric-val">${Math.round(g*t)}<span class="metric-unit">g</span></div></div>
+    <div class="metric"><div class="metric-label">Protéines totales</div><div class="metric-val">${Math.round(p*t)}<span class="metric-unit">g</span></div></div>
+    <div class="metric"><div class="metric-label">Sodium total</div><div class="metric-val">${(s*t).toFixed(1)}<span class="metric-unit">g</span></div></div>
+    <div class="metric"><div class="metric-label">Hydratation</div><div class="metric-val">${(e*t/1000).toFixed(1)}<span class="metric-unit">L</span></div></div>`;
+  let html='<div class="card"><div class="card-head"><span class="card-title">Plan par segment</span></div>';
+  let prev=RAVITOS[0];
+  RAVITOS.slice(1).forEach((rv,i)=>{
+    const seg=SEGS[i];const st=segTime(seg);
+    html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)${i===RAVITOS.length-2?';border-bottom:none':''}">
+      <div><div style="font-weight:500;color:var(--text1);font-size:13px">${prev.name} → ${rv.name} <span style="font-size:11px;color:var(--text3)">(${hms(st)})</span></div></div>
+      <div style="display:flex;gap:16px;font-size:12px">
+        <span style="color:var(--text3)">Glucides <strong style="color:var(--text1)">${Math.round(g*st)}g</strong></span>
+        <span style="color:var(--text3)">Protéines <strong style="color:var(--text1)">${Math.round(p*st)}g</strong></span>
+        <span style="color:var(--text3)">Sodium <strong style="color:var(--text1)">${(s*st).toFixed(1)}g</strong></span>
+        <span style="color:var(--text3)">Eau <strong style="color:var(--text1)">${(e*st/1000).toFixed(1)}L</strong></span>
+        ${rv.assist?'<span class="badge badge-green">Assist.</span>':''}
+      </div></div>`;
+    prev=rv;
+  });
+  html+='</div>';
+  document.getElementById('nutri-segments').innerHTML=html;
+}
+
+// ===== ASSISTANCE =====
+function renderTimeline(){
+  const startH=parseTime(document.getElementById('a-start')?.value||'06:00');
+  const mopt=+(document.getElementById('a-mopt')?.value||20)/60;
+  const mpes=+(document.getElementById('a-mpes')?.value||40)/60;
+  const alert_before=+(document.getElementById('a-alert')?.value||45)/60;
+  let html='<div class="tl">';
+  ASSIST_PTS.forEach((p,i)=>{
+    const arr=addH(startH,p.nomH);
+    const wmin=addH(startH,p.nomH-mopt);
+    const wmax=addH(startH,p.nomH+mpes);
+    if(i>0){
+      const alertT=addH(startH,p.nomH-p.driveMin/60-alert_before);
+      const depT=addH(startH,p.nomH-p.driveMin/60);
+      html+=`<div class="tl-item" style="padding-top:4px">
+        <div class="tl-dot" style="background:var(--warn);color:#000;top:8px;font-size:8px">!</div>
+        <div class="tl-card c-orange" style="margin-bottom:4px">
+          <div style="font-size:11px;color:var(--warn);margin-bottom:4px;font-family:var(--font-display);letter-spacing:.3px;text-transform:uppercase">Alerte départ · ${alertT}</div>
+          <div style="font-weight:500;font-size:13px;color:var(--text1)">Partir vers ${p.name}</div>
+          <div style="font-size:11px;color:var(--text3)">Trajet ${p.driveMin}min · Arriver avant ${wmin}</div>
+        </div></div>
+      <div class="tl-item" style="padding-top:4px">
+        <div class="tl-dot" style="background:var(--accent2);color:#fff;top:8px">→</div>
+        <div class="tl-card c-blue" style="margin-bottom:4px">
+          <div style="font-size:11px;color:var(--accent2);margin-bottom:4px;font-family:var(--font-display);letter-spacing:.3px;text-transform:uppercase">En route · ${depT}</div>
+          <div style="font-weight:500;font-size:13px;color:var(--text1)">${ASSIST_PTS[i-1].name} → ${p.name}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+            <span style="font-size:11px;color:var(--text3)">${p.driveMin} min · Voiture</span>
+            <a href="https://www.google.com/maps/dir/${ASSIST_PTS[i-1].lat},${ASSIST_PTS[i-1].lon}/${p.lat},${p.lon}" target="_blank" class="maps-btn">Maps →</a>
+          </div>
+        </div></div>`;
+    }
+    html+=`<div class="tl-item" style="padding-top:4px">
+      <div class="tl-dot" style="background:var(--accent);color:#000;top:8px;font-size:10px;font-weight:700">${i+1}</div>
+      <div class="tl-card c-green" style="margin-bottom:4px">
+        <div style="font-size:11px;color:var(--accent);margin-bottom:4px;font-family:var(--font-display);letter-spacing:.3px;text-transform:uppercase">${i===3?'Arrivée':'Assistance'} · ${arr}</div>
+        <div style="font-weight:500;font-size:14px;color:var(--text1);margin-bottom:6px">${p.name} — ${p.loc}</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px">${p.note}</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:6px">
+          <span style="color:var(--text3)">Fenêtre :</span>
+          <strong style="color:var(--accent)">${wmin}</strong>
+          <span style="color:var(--text3)">—</span>
+          <strong style="color:var(--danger)">${wmax}</strong>
+        </div>
+        <div class="progress-bg"><div class="progress-fill" style="width:60%"></div></div>
+      </div></div>`;
+  });
+  html+='</div>';
+  document.getElementById('timeline-content').innerHTML=html;
+}
+function renderChecklist(){
+  const c=document.getElementById('checklist-content');
+  if(!c)return;
+  c.innerHTML=ASSIST_PTS.map((p,pi)=>`
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-head">
+        <span class="card-title">${p.name} — ${p.loc}</span>
+        <div style="display:flex;gap:6px">
+          <span style="font-size:11px;color:var(--text3)" id="cprog-${p.id}">0/${p.checklist.length}</span>
+          <button class="btn btn-sm" onclick="checkAllP(${p.id},${p.checklist.length})">Tout cocher</button>
+        </div>
+      </div>
+      <div class="progress-bg" style="margin-bottom:12px"><div class="progress-fill" id="cpb-${p.id}" style="width:0%"></div></div>
+      ${p.checklist.map((item,ii)=>{const k=`${p.id}-${ii}`;return`<label class="check-item ${checkStates[k]?'done':''}" id="cli-${k}"><input type="checkbox" ${checkStates[k]?'checked':''} onchange="toggleCheck('${k}',${p.id},${p.checklist.length},this)" style="accent-color:var(--accent)"/>${item}</label>`;}).join('')}
+    </div>`).join('');
+}
+function toggleCheck(k,pid,total,el){
+  checkStates[k]=el.checked;
+  document.getElementById('cli-'+k).className='check-item'+(el.checked?' done':'');
+  let n=0;for(let i=0;i<total;i++)if(checkStates[`${pid}-${i}`])n++;
+  document.getElementById('cprog-'+pid).textContent=`${n}/${total}`;
+  document.getElementById('cpb-'+pid).style.width=Math.round(n/total*100)+'%';
+}
+function checkAllP(pid,total){for(let i=0;i<total;i++)checkStates[`${pid}-${i}`]=true;renderChecklist();}
+function renderItineraires(){
+  const startH=parseTime(document.getElementById('a-start')?.value||'06:00');
+  const alert_before=+(document.getElementById('a-alert')?.value||45)/60;
+  const legs=[
+    {from:'Les Rousses',fc:'46.4843,6.0618',to:'Morbier',tc:'46.5374,6.0161',drive:25,leaveH:ASSIST_PTS[0].nomH-ASSIST_PTS[0].driveMin/60-alert_before},
+    {from:'Morbier',fc:'46.5374,6.0161',to:'Chapelle des Bois',tc:'46.5972,6.1130',drive:35,leaveH:ASSIST_PTS[1].nomH-ASSIST_PTS[1].driveMin/60-alert_before},
+    {from:'Chapelle des Bois',fc:'46.5972,6.1130',to:'Mouthe',tc:'46.7101,6.1927',drive:28,leaveH:ASSIST_PTS[2].nomH-ASSIST_PTS[2].driveMin/60-alert_before},
+    {from:'Mouthe',fc:'46.7101,6.1927',to:'Les Rousses',tc:'46.4843,6.0618',drive:42,leaveH:ASSIST_PTS[3].nomH-ASSIST_PTS[3].driveMin/60-alert_before}
+  ];
+  document.getElementById('itin-content').innerHTML=`<div class="card"><div class="card-head"><span class="card-title">Tronçons routiers</span></div>`+
+  legs.map((l,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)${i===legs.length-1?';border-bottom:none':''}">
+    <div><div style="font-weight:500;color:var(--text1);font-size:13px">Tronçon ${i+1} — ${l.from} → ${l.to}</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:2px">Trajet : ${l.drive} min · Partir à <strong style="color:var(--warn)">${addH(startH,l.leaveH)}</strong></div></div>
+    <a href="https://www.google.com/maps/dir/${l.fc}/${l.tc}" target="_blank" class="maps-btn">Google Maps →</a>
+  </div>`).join('')+
+  `</div><div class="card"><div class="card-head"><span class="card-title">Circuit complet</span></div>
+  <a href="https://www.google.com/maps/dir/46.4843,6.0618/46.5374,6.0161/46.5972,6.1130/46.7101,6.1927/46.4843,6.0618" target="_blank" class="maps-btn" style="font-size:13px;padding:8px 16px">Circuit 4 points — Google Maps →</a></div>`;
+}
+
+// ===== INIT =====
+renderActiveSources();
+initGpx();
+renderNutri();
+renderAddSegs();
+</script>
+</body>
+</html>
