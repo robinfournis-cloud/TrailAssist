@@ -276,18 +276,18 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
 
   <!-- ZONE IMPORT -->
   <div id="gpx-import-zone">
-    <div id="gpx-dropzone" onclick="document.getElementById('gpx-file-input').click()"
-      ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
-      ondragleave="this.style.borderColor=''"
+    <input type="file" id="gpx-file-input" accept=".gpx,.txt" style="display:none" onchange="loadGpxFile(this.files[0])"/>
+    <label for="gpx-file-input" id="gpx-dropzone"
+      ondragover="event.preventDefault();document.getElementById('gpx-dropzone').style.borderColor='var(--accent)'"
+      ondragleave="document.getElementById('gpx-dropzone').style.borderColor='rgba(255,255,255,0.15)'"
       ondrop="handleGpxDrop(event)"
-      style="border:2px dashed rgba(255,255,255,0.15);border-radius:var(--r-lg);padding:48px 24px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:12px">
+      style="display:block;border:2px dashed rgba(255,255,255,0.15);border-radius:var(--r-lg);padding:48px 24px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:12px">
       <div style="width:48px;height:48px;background:rgba(0,212,170,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       </div>
       <div style="font-size:16px;font-weight:500;color:var(--text1);margin-bottom:6px">Déposer ou cliquer pour importer un fichier GPX</div>
       <div style="font-size:13px;color:var(--text3)">Format .gpx — export depuis Garmin, Strava, Komoot, TraceDeTrail...</div>
-      <input type="file" id="gpx-file-input" accept=".gpx,.txt" style="display:none" onchange="loadGpxFile(this.files[0])"/>
-    </div>
+    </label>
     <div style="text-align:center;margin-bottom:24px">
       <span style="font-size:12px;color:var(--text3)">ou</span>
       <button class="btn btn-sm" style="margin-left:10px" onclick="loadDemoGpx()">Charger l'UTMJ 2024 (démo)</button>
@@ -759,7 +759,135 @@ function matchScore(r){
   if(r.dist>=80)sc+=5;return Math.max(0,Math.min(100,Math.round(sc)));
 }
 
+// ===== GPX IMPORT =====
+function haversine(la1,lo1,la2,lo2){
+  const R=6371000,dL=(la2-la1)*Math.PI/180,dLo=(lo2-lo1)*Math.PI/180;
+  const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLo/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function handleGpxDrop(e){
+  e.preventDefault();e.stopPropagation();
+  document.getElementById('gpx-dropzone').style.borderColor='rgba(255,255,255,0.15)';
+  const f=e.dataTransfer.files[0];
+  if(f)loadGpxFile(f);
+}
+function loadGpxFile(file){
+  if(!file)return;
+  const r=new FileReader();
+  r.onload=function(e){parseGpxXml(e.target.result,file.name.replace(/\.[^.]+$/,''));};
+  r.readAsText(file);
+}
+function parseGpxXml(xml,name){
+  try{
+    const parser=new DOMParser();
+    const doc=parser.parseFromString(xml,'text/xml');
+    const pts=[...doc.querySelectorAll('trkpt,rtept,wpt')];
+    if(!pts.length){alert('Aucun point GPS trouvé dans ce fichier GPX.');return;}
+    let dist=0,dp=0,dm=0;
+    const rawPts=[];
+    pts.forEach((p,i)=>{
+      const lat=+p.getAttribute('lat'),lon=+p.getAttribute('lon');
+      const eleEl=p.querySelector('ele');
+      const ele=eleEl?+eleEl.textContent:0;
+      if(i>0){
+        const prev=rawPts[i-1];
+        dist+=haversine(prev.lat,prev.lon,lat,lon);
+        const d=ele-prev.ele;
+        if(d>0)dp+=d;else dm+=Math.abs(d);
+      }
+      rawPts.push({lat,lon,ele,dist});
+    });
+    const step=Math.max(1,Math.floor(rawPts.length/300));
+    GPX_PTS=rawPts.filter((_,i)=>i%step===0||i===rawPts.length-1).map(p=>({d:+( p.dist/1000).toFixed(2),e:Math.round(p.ele)}));
+    const totalKm=+(dist/1000).toFixed(1);
+    RAVITOS=[
+      {name:'Départ',loc:'',km:0,assist:false},
+      {name:'Arrivée',loc:'',km:Math.round(totalKm),assist:false}
+    ];
+    gpxName=name;gpxLoaded=true;
+    onGpxLoaded(name,totalKm,Math.round(dp),Math.round(dm),rawPts.length);
+  }catch(err){alert('Erreur lors de la lecture du fichier GPX : '+err.message);}
+}
+function loadDemoGpx(){
+  GPX_PTS=[...DEMO_GPX_PTS];
+  RAVITOS=DEMO_RAVITOS.map(r=>({...r}));
+  gpxName='UTMJ Franco-Suisse 105km 2024';
+  gpxLoaded=true;
+  onGpxLoaded('UTMJ Franco-Suisse 105km',104.1,5834,5924,6284);
+}
+function onGpxLoaded(name,dist,dp,dm,npts){
+  computeSegs();
+  document.getElementById('banner-name').textContent=name;
+  document.getElementById('b-dist').textContent=dist;
+  document.getElementById('b-dp').textContent=dp.toLocaleString('fr-FR');
+  document.getElementById('b-dm').textContent=dm.toLocaleString('fr-FR');
+  document.getElementById('b-pts').textContent=npts.toLocaleString('fr-FR');
+  ['banner-dist','banner-dp','banner-dm','banner-pts'].forEach(id=>document.getElementById(id).style.display='flex');
+  document.getElementById('gpx-import-zone').style.display='none';
+  document.getElementById('gpx-loaded-zone').style.display='block';
+  document.getElementById('gpx-loaded-name').textContent=name;
+  document.getElementById('gpx-sub').textContent=`${dist} km · +${dp.toLocaleString('fr-FR')}m / -${dm.toLocaleString('fr-FR')}m · ${npts.toLocaleString('fr-FR')} points GPS`;
+  document.getElementById('gpx-dist-val').innerHTML=`${dist}<span class="metric-unit">km</span>`;
+  document.getElementById('gpx-dp-val').innerHTML=`${dp.toLocaleString('fr-FR')}<span class="metric-unit">m</span>`;
+  document.getElementById('gpx-pts-badge').textContent=`${npts.toLocaleString('fr-FR')} points GPS`;
+  renderRavitoEditor();
+  updateGpxStats();
+  renderAltChart();
+}
+function resetGpx(){
+  GPX_PTS=[];RAVITOS=[];SEGS=[];gpxLoaded=false;gpxName='';
+  document.getElementById('gpx-import-zone').style.display='block';
+  document.getElementById('gpx-loaded-zone').style.display='none';
+  document.getElementById('banner-name').textContent='Aucune course chargée';
+  ['banner-dist','banner-dp','banner-dm','banner-pts'].forEach(id=>document.getElementById(id).style.display='none');
+  if(altChartInst){altChartInst.destroy();altChartInst=null;}
+  const inp=document.getElementById('gpx-file-input');
+  if(inp)inp.value='';
+}
+function getDpDmBetween(kmA,kmB){
+  let dp=0,dm=0,prev=null;
+  for(const p of GPX_PTS){
+    if(p.d<kmA)continue;if(p.d>kmB)break;
+    if(prev!==null){const d=p.e-prev.e;if(d>0)dp+=d;else dm+=Math.abs(d);}
+    prev=p;
+  }
+  return{dp:Math.round(dp),dm:Math.round(dm)};
+}
+function renderRavitoEditor(){
+  const c=document.getElementById('ravito-editor-gpx');
+  if(!c)return;
+  const maxKm=GPX_PTS.length?Math.round(GPX_PTS[GPX_PTS.length-1].d):200;
+  c.innerHTML=RAVITOS.map((r,i)=>{
+    const isFirst=i===0,isLast=i===RAVITOS.length-1;
+    const ele=getEle(r.km);
+    return`<div style="display:grid;grid-template-columns:2fr 2fr 80px 90px 36px;gap:8px;align-items:end;padding:8px 0;border-bottom:1px solid var(--border)${isLast?';border-bottom:none':''}">
+      <div><label class="lbl">Nom</label><input type="text" value="${r.name}" onchange="RAVITOS[${i}].name=this.value;computeSegs();renderPassage()"/></div>
+      <div><label class="lbl">Lieu</label><input type="text" value="${r.loc||''}" onchange="RAVITOS[${i}].loc=this.value"/></div>
+      <div><label class="lbl">Km · ${ele}m alt</label><input type="number" value="${r.km}" min="0" max="${maxKm}" onchange="RAVITOS[${i}].km=+this.value;computeSegs();renderRavitoEditor();updateGpxStats()"/></div>
+      <div><label class="lbl" style="margin-bottom:8px"> </label><label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer"><input type="checkbox" ${r.assist?'checked':''} onchange="RAVITOS[${i}].assist=this.checked;renderPassage();renderAltChart()" style="accent-color:var(--accent)"/> Assistance</label></div>
+      <div>${!isFirst&&!isLast?`<button onclick="RAVITOS.splice(${i},1);computeSegs();renderRavitoEditor();updateGpxStats()" style="width:32px;height:32px;margin-top:18px;background:none;border:1px solid var(--border2);border-radius:var(--r);color:var(--text3);cursor:pointer;font-size:14px">✕</button>`:'<div style="width:32px;height:32px;margin-top:18px"></div>'}</div>
+    </div>`;
+  }).join('');
+}
+function addRavito(){
+  const last=RAVITOS[RAVITOS.length-2]||{km:0};
+  const next=RAVITOS[RAVITOS.length-1];
+  const mid=Math.round((last.km+next.km)/2);
+  RAVITOS.splice(RAVITOS.length-1,0,{name:`Ravito ${RAVITOS.length-1}`,loc:'',km:mid,assist:false});
+  computeSegs();renderRavitoEditor();updateGpxStats();
+}
+
 // ===== GPX FUNCTIONS =====
+function getEle(km){
+  if(!GPX_PTS.length)return 0;
+  for(let i=1;i<GPX_PTS.length;i++){
+    if(GPX_PTS[i].d>=km){
+      const t=(km-GPX_PTS[i-1].d)/(GPX_PTS[i].d-GPX_PTS[i-1].d);
+      return Math.round(GPX_PTS[i-1].e+(GPX_PTS[i].e-GPX_PTS[i-1].e)*t);
+    }
+  }
+  return GPX_PTS[GPX_PTS.length-1].e;
+}
 function updateGpxStats(){
   if(!gpxLoaded)return;
   const t=+document.getElementById('p-chrono').value||16;
