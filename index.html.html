@@ -252,15 +252,18 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
 <!-- RACE BANNER -->
 <div class="race-banner">
   <div class="race-pill">
-    <div class="race-dot"></div>
-    <span class="race-name">UTMJ Franco-Suisse 105km</span>
-    <span class="race-meta">2024</span>
+    <div class="race-dot" id="banner-dot"></div>
+    <span class="race-name" id="banner-name">Aucune course chargée</span>
+    <span class="race-meta" id="banner-meta"></span>
   </div>
-  <div class="stat-chip"><strong>104.1</strong> km</div>
-  <div class="stat-chip">+<strong>5 834</strong> m</div>
-  <div class="stat-chip">-<strong>5 924</strong> m</div>
-  <div class="stat-chip"><strong>6 284</strong> pts GPS</div>
-  <button class="btn-change">Changer de course</button>
+  <div class="stat-chip" id="banner-dist" style="display:none"><strong id="b-dist">—</strong> km</div>
+  <div class="stat-chip" id="banner-dp" style="display:none">+<strong id="b-dp">—</strong> m</div>
+  <div class="stat-chip" id="banner-dm" style="display:none">-<strong id="b-dm">—</strong> m</div>
+  <div class="stat-chip" id="banner-pts" style="display:none"><strong id="b-pts">—</strong> pts GPS</div>
+  <button class="btn-change" onclick="showSection('gpx')">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    Importer un GPX
+  </button>
 </div>
 
 <!-- CONTENT -->
@@ -269,61 +272,116 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
 <!-- ==================== GPX ==================== -->
 <div id="sec-gpx" class="section active">
   <div class="page-title">Course & Profil GPX</div>
-  <div class="page-sub">Tracé réel importé · 9 segments · 4 points d'assistance</div>
+  <div class="page-sub" id="gpx-sub">Importez votre fichier GPX pour commencer</div>
 
-  <div class="metric-grid">
-    <div class="metric"><div class="metric-label">Distance</div><div class="metric-val">104.1<span class="metric-unit">km</span></div><div class="metric-sub">Tracé GPS réel</div></div>
-    <div class="metric"><div class="metric-label">D+ total</div><div class="metric-val">5834<span class="metric-unit">m</span></div><div class="metric-sub">Calculé point/point</div></div>
-    <div class="metric"><div class="metric-label">Chrono cible</div><div class="metric-val" id="gpx-chrono">16h00</div><div class="metric-sub">Modifiable</div></div>
-    <div class="metric"><div class="metric-label">Allure moy.</div><div class="metric-val" id="gpx-pace">9.2<span class="metric-unit">mn/km</span></div><div class="metric-sub">Calculée</div></div>
-  </div>
-
-  <div class="card">
-    <div class="card-head">
-      <span class="card-title">Profil altimétrique — GPX réel</span>
-      <div class="badge badge-green">GPX chargé</div>
-    </div>
-    <div class="chart-wrap" style="height:220px"><canvas id="altChart" role="img" aria-label="Profil altimétrique UTMJ 105km"></canvas></div>
-    <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap">
-      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:12px;height:2px;background:var(--accent);display:inline-block;border-radius:1px"></span>Profil GPX</span>
-      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></span>Ravito</span>
-      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:8px solid var(--warn);display:inline-block"></span>Assistance</span>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-head">
-      <span class="card-title">Paramètres coureur</span>
-    </div>
-    <div class="form-grid">
-      <div class="form-row"><label class="lbl">Index UTMB</label><input type="number" id="p-idx" value="650" onchange="updateGpxStats()"/></div>
-      <div class="form-row"><label class="lbl">Chrono objectif (h)</label><input type="number" id="p-chrono" value="16" step="0.25" onchange="updateGpxStats()"/></div>
-      <div class="form-row"><label class="lbl">Heure de départ</label><input type="time" id="p-start" value="06:00"/></div>
-      <div class="form-row">
-        <label class="lbl">Force montée (1–5) · <span id="climb-out">3.5</span></label>
-        <input type="range" min="1" max="5" step="0.5" value="3.5" oninput="document.getElementById('climb-out').textContent=this.value" style="width:100%;accent-color:var(--accent)"/>
+  <!-- ZONE IMPORT -->
+  <div id="gpx-import-zone">
+    <div id="gpx-dropzone" onclick="document.getElementById('gpx-file-input').click()"
+      ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+      ondragleave="this.style.borderColor=''"
+      ondrop="handleGpxDrop(event)"
+      style="border:2px dashed rgba(255,255,255,0.15);border-radius:var(--r-lg);padding:48px 24px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:12px">
+      <div style="width:48px;height:48px;background:rgba(0,212,170,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       </div>
-      <div class="form-row">
-        <label class="lbl">Force descente (1–5) · <span id="desc-out">3</span></label>
-        <input type="range" min="1" max="5" step="0.5" value="3" oninput="document.getElementById('desc-out').textContent=this.value" style="width:100%;accent-color:var(--accent)"/>
-      </div>
-      <div class="form-row"><label class="lbl">Scénario</label>
-        <select id="p-scen">
-          <option value="nom">Nominal</option>
-          <option value="opt">Optimiste</option>
-          <option value="pes">Pessimiste</option>
-        </select>
+      <div style="font-size:16px;font-weight:500;color:var(--text1);margin-bottom:6px">Déposer ou cliquer pour importer un fichier GPX</div>
+      <div style="font-size:13px;color:var(--text3)">Format .gpx — export depuis Garmin, Strava, Komoot, TraceDeTrail...</div>
+      <input type="file" id="gpx-file-input" accept=".gpx,.txt" style="display:none" onchange="loadGpxFile(this.files[0])"/>
+    </div>
+    <div style="text-align:center;margin-bottom:24px">
+      <span style="font-size:12px;color:var(--text3)">ou</span>
+      <button class="btn btn-sm" style="margin-left:10px" onclick="loadDemoGpx()">Charger l'UTMJ 2024 (démo)</button>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 18px">
+      <div style="font-size:12px;font-weight:600;font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:10px">Sources compatibles</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="https://tracedetrail.fr" target="_blank" style="font-size:12px;color:var(--accent);text-decoration:none;border:1px solid rgba(0,212,170,.2);border-radius:5px;padding:3px 10px;background:rgba(0,212,170,.05)">TraceDeTrail →</a>
+        <a href="https://www.strava.com" target="_blank" style="font-size:12px;color:var(--strava);text-decoration:none;border:1px solid rgba(252,76,2,.2);border-radius:5px;padding:3px 10px;background:rgba(252,76,2,.05)">Strava →</a>
+        <a href="https://www.komoot.com" target="_blank" style="font-size:12px;color:var(--accent2);text-decoration:none;border:1px solid rgba(0,153,255,.2);border-radius:5px;padding:3px 10px;background:rgba(0,153,255,.05)">Komoot →</a>
+        <a href="https://connect.garmin.com" target="_blank" style="font-size:12px;color:var(--warn);text-decoration:none;border:1px solid rgba(245,166,35,.2);border-radius:5px;padding:3px 10px;background:rgba(245,166,35,.05)">Garmin Connect →</a>
+        <span style="font-size:12px;color:var(--text3);border:1px solid var(--border);border-radius:5px;padding:3px 10px">Tout fichier .gpx standard</span>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-head"><span class="card-title">Tableau de passage</span></div>
-    <div style="overflow-x:auto">
-    <table class="tbl">
-      <thead><tr><th>Point</th><th>Km</th><th>Alt</th><th>D+</th><th>D-</th><th>Passage</th><th>Tps seg</th><th>Allure</th><th>Assistance</th></tr></thead>
-      <tbody id="passage-tbody"></tbody>
-    </table>
+  <!-- RESULTATS APRES IMPORT -->
+  <div id="gpx-loaded-zone" style="display:none">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--accent)"></div>
+        <span style="font-size:14px;font-weight:500;color:var(--text1)" id="gpx-loaded-name">—</span>
+        <span class="badge badge-green">GPX chargé</span>
+      </div>
+      <button class="btn btn-sm" onclick="resetGpx()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Changer de course
+      </button>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric"><div class="metric-label">Distance</div><div class="metric-val" id="gpx-dist-val">—</div><div class="metric-sub">Tracé GPS réel</div></div>
+      <div class="metric"><div class="metric-label">D+ total</div><div class="metric-val" id="gpx-dp-val">—</div><div class="metric-sub">Calculé point/point</div></div>
+      <div class="metric"><div class="metric-label">Chrono cible</div><div class="metric-val" id="gpx-chrono">—</div><div class="metric-sub">Modifiable ci-dessous</div></div>
+      <div class="metric"><div class="metric-label">Allure moy.</div><div class="metric-val" id="gpx-pace">—</div><div class="metric-sub">Calculée</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Profil altimétrique — GPX réel</span>
+        <span id="gpx-pts-badge" style="font-size:11px;color:var(--text3)"></span>
+      </div>
+      <div class="chart-wrap" style="height:220px"><canvas id="altChart" role="img" aria-label="Profil altimétrique de la course"></canvas></div>
+      <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:12px;height:2px;background:var(--accent);display:inline-block;border-radius:1px"></span>Profil GPX</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></span>Ravito</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:8px solid var(--warn);display:inline-block"></span>Assistance</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Ravitaillements & segments</span>
+        <button class="btn btn-sm" onclick="addRavito()">+ Ajouter ravito</button>
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Positionnez vos ravitos en indiquant leur km sur le tracé. L'altitude est lue automatiquement depuis le GPX.</div>
+      <div id="ravito-editor-gpx"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Paramètres coureur</span>
+      </div>
+      <div class="form-grid">
+        <div class="form-row"><label class="lbl">Index UTMB</label><input type="number" id="p-idx" value="650" onchange="updateGpxStats()"/></div>
+        <div class="form-row"><label class="lbl">Chrono objectif (h)</label><input type="number" id="p-chrono" value="16" step="0.25" onchange="updateGpxStats()"/></div>
+        <div class="form-row"><label class="lbl">Heure de départ</label><input type="time" id="p-start" value="06:00"/></div>
+        <div class="form-row">
+          <label class="lbl">Force montée (1–5) · <span id="climb-out">3.5</span></label>
+          <input type="range" min="1" max="5" step="0.5" value="3.5" oninput="document.getElementById('climb-out').textContent=this.value;updateGpxStats()" style="width:100%;accent-color:var(--accent)"/>
+        </div>
+        <div class="form-row">
+          <label class="lbl">Force descente (1–5) · <span id="desc-out">3</span></label>
+          <input type="range" min="1" max="5" step="0.5" value="3" oninput="document.getElementById('desc-out').textContent=this.value;updateGpxStats()" style="width:100%;accent-color:var(--accent)"/>
+        </div>
+        <div class="form-row"><label class="lbl">Scénario</label>
+          <select id="p-scen" onchange="updateGpxStats()">
+            <option value="nom">Nominal</option>
+            <option value="opt">Optimiste</option>
+            <option value="pes">Pessimiste</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Tableau de passage</span></div>
+      <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead><tr><th>Point</th><th>Km</th><th>Alt</th><th>D+</th><th>D-</th><th>Passage</th><th>Tps seg</th><th>Allure</th><th>Assistance</th></tr></thead>
+        <tbody id="passage-tbody"></tbody>
+      </table>
+      </div>
     </div>
   </div>
 </div>
@@ -584,19 +642,8 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
 
 <script>
 // ===== DATA =====
-const GPX_PTS=[{d:0,e:1106},{d:0.64,e:1124},{d:1.57,e:1128},{d:3.02,e:1085},{d:5.06,e:910},{d:7.37,e:842},{d:10.21,e:884},{d:11.4,e:1032},{d:12.71,e:1002},{d:15.27,e:967},{d:17.57,e:831},{d:19.15,e:700},{d:20.63,e:808},{d:22.66,e:1026},{d:24.7,e:1158},{d:26.78,e:1069},{d:28.65,e:1143},{d:31.66,e:1134},{d:33.67,e:1353},{d:35.54,e:1258},{d:37.4,e:1088},{d:39.78,e:1108},{d:42.46,e:1096},{d:45.35,e:1112},{d:47.56,e:1123},{d:48.89,e:1074},{d:51.0,e:1071},{d:53.79,e:948},{d:56.55,e:1003},{d:58.72,e:1122},{d:61.35,e:1123},{d:64.23,e:1191},{d:67.6,e:1231},{d:70.79,e:1427},{d:72.56,e:1329},{d:75.04,e:1012},{d:78.37,e:1003},{d:80.91,e:1020},{d:83.81,e:1211},{d:86.64,e:1253},{d:89.36,e:1520},{d:92.27,e:1282},{d:94.93,e:1228},{d:97.57,e:988},{d:100.62,e:1001},{d:103.64,e:1062},{d:104.07,e:1016}];
-const SEGS=[
-  {name:'Départ → R1',from:'Les Rousses',to:'Morbier',k0:0,k1:19,dp:720,dm:980},
-  {name:'R1 → R2',from:'Morbier',to:'Bellefontaine',k0:19,k1:26,dp:280,dm:120},
-  {name:'R2 → R3',from:'Bellefontaine',to:'Chapelle des Bois',k0:26,k1:36,dp:480,dm:320},
-  {name:'R3 → R4',from:'Chapelle des Bois',to:'Chaux Neuve',k0:36,k1:48,dp:390,dm:450},
-  {name:'R4 → R5',from:'Chaux Neuve',to:'Mouthe',k0:48,k1:56,dp:160,dm:210},
-  {name:'R5 → R6',from:'Mouthe',to:'Fort du Risoux',k0:56,k1:70,dp:820,dm:650},
-  {name:'R6 → R7',from:'Fort du Risoux',to:'Vallée de Joux',k0:70,k1:83,dp:610,dm:720},
-  {name:'R7 → R8',from:'Vallée de Joux',to:'Col Marchairuz',k0:83,k1:93,dp:740,dm:580},
-  {name:'R8 → Arr.',from:'Col Marchairuz',to:'Les Rousses',k0:93,k1:104,dp:430,dm:890}
-];
-const RAVITOS=[
+const DEMO_GPX_PTS=[{d:0,e:1106},{d:0.64,e:1124},{d:1.57,e:1128},{d:3.02,e:1085},{d:5.06,e:910},{d:7.37,e:842},{d:10.21,e:884},{d:11.4,e:1032},{d:12.71,e:1002},{d:15.27,e:967},{d:17.57,e:831},{d:19.15,e:700},{d:20.63,e:808},{d:22.66,e:1026},{d:24.7,e:1158},{d:26.78,e:1069},{d:28.65,e:1143},{d:31.66,e:1134},{d:33.67,e:1353},{d:35.54,e:1258},{d:37.4,e:1088},{d:39.78,e:1108},{d:42.46,e:1096},{d:45.35,e:1112},{d:47.56,e:1123},{d:48.89,e:1074},{d:51.0,e:1071},{d:53.79,e:948},{d:56.55,e:1003},{d:58.72,e:1122},{d:61.35,e:1123},{d:64.23,e:1191},{d:67.6,e:1231},{d:70.79,e:1427},{d:72.56,e:1329},{d:75.04,e:1012},{d:78.37,e:1003},{d:80.91,e:1020},{d:83.81,e:1211},{d:86.64,e:1253},{d:89.36,e:1520},{d:92.27,e:1282},{d:94.93,e:1228},{d:97.57,e:988},{d:100.62,e:1001},{d:103.64,e:1062},{d:104.07,e:1016}];
+const DEMO_RAVITOS=[
   {name:'Départ',loc:'Les Rousses',km:0,assist:false},
   {name:'Ravito 1',loc:'Morbier',km:19,assist:true},
   {name:'Ravito 2',loc:'Bellefontaine',km:26,assist:false},
@@ -608,6 +655,22 @@ const RAVITOS=[
   {name:'Ravito 8',loc:'Col Marchairuz',km:93,assist:false},
   {name:'Arrivée',loc:'Les Rousses',km:104,assist:false}
 ];
+
+// State GPX dynamique
+let GPX_PTS = [];
+let RAVITOS = [];
+let gpxLoaded = false;
+let gpxName = '';
+let SEGS = [];
+
+function computeSegs(){
+  SEGS=[];
+  for(let i=1;i<RAVITOS.length;i++){
+    const prev=RAVITOS[i-1],cur=RAVITOS[i];
+    const {dp,dm}=getDpDmBetween(prev.km,cur.km);
+    SEGS.push({name:`${prev.name} → ${cur.name}`,from:prev.loc||prev.name,to:cur.loc||cur.name,k0:prev.km,k1:cur.km,dp,dm});
+  }
+}
 const RUNNERS=[
   {id:1,name:'Jérémy F.',ini:'JF',col:'#00d4aa',idx:648,race:'UTMJ 2024',dist:104,dp:5820,chrono:15.5,best:15.1,worst:16.2,paces:[8.3,8.3,8.4,8.9,8.3,10.1,9.2,10.2,8.3],url:'https://www.strava.com/activities/demo1'},
   {id:2,name:'Thomas B.',ini:'TB',col:'#0099ff',idx:671,race:'UTMJ 2023',dist:104,dp:5820,chrono:14.8,best:14.3,worst:15.6,paces:[7.6,7.7,7.8,8.3,7.4,9.1,8.4,9.4,7.6]},
@@ -648,7 +711,6 @@ function showSection(id){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach((b,i)=>b.classList.toggle('active',['gpx','database','matching','perf','nutrition','assistance'][i]===id));
   document.getElementById('sec-'+id).classList.add('active');
-  if(id==='gpx')initGpx();
   if(id==='matching')renderMatching();
   if(id==='perf')renderPerf();
   if(id==='nutrition')renderNutri();
@@ -672,32 +734,49 @@ function showSubsec(parent,id){
 }
 
 // ===== HELPERS =====
-function getEle(km){for(let i=1;i<GPX_PTS.length;i++){if(GPX_PTS[i].d>=km){const t=(km-GPX_PTS[i-1].d)/(GPX_PTS[i].d-GPX_PTS[i-1].d);return Math.round(GPX_PTS[i-1].e+(GPX_PTS[i].e-GPX_PTS[i-1].e)*t);}}return GPX_PTS[GPX_PTS.length-1].e;}
 function hms(h){const hh=Math.floor(h),mm=Math.round((h-hh)*60);return mm===60?`${hh+1}h00`:`${hh}h${String(mm).padStart(2,'0')}`;}
 function parseH(s){if(!s)return 0;const m=s.match(/(\d+)h(\d+)?/);return m?+m[1]+(+(m[2]||0))/60:0;}
 function addH(base,h){const t=base+h;const hh=Math.floor(t)%24;const mm=Math.round((t%1)*60);return`${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;}
 function parseTime(t){const[h,m]=t.split(':').map(Number);return h+m/60;}
-function segTime(s,factor=1){const t=+document.getElementById('p-chrono').value;const bl=t/104.1;return(s.km*bl+(s.dp/1000)*0.8+(s.dm/1000)*0.25)*factor;}
-function getPaces(r,sc){const f=sc==='opt'?r.best/r.chrono:sc==='pes'?r.worst/r.chrono:1;return r.paces.map(p=>+(p*f).toFixed(2));}
-function matchScore(r){const my=+document.getElementById('myIdx')||650;const myI=document.getElementById('p-idx')?+document.getElementById('p-idx').value:650;const sens=+document.getElementById('m-sens')?.value||80;const d=Math.abs(r.idx-myI);if(d>sens)return 0;let sc=100-(d/sens)*40;if(r.race.includes('UTMJ'))sc+=30;else if(r.dist>=90&&r.dist<=115&&r.dp>=4800)sc+=15;sc-=Math.abs(r.dp/r.dist-5834/104.1)*0.8;if(r.dist>=80)sc+=5;return Math.max(0,Math.min(100,Math.round(sc)));}
-
-// ===== GPX =====
-function initGpx(){
-  updateGpxStats();
-  renderAltChart();
-  renderPassage();
+function totalDist(){return GPX_PTS.length?GPX_PTS[GPX_PTS.length-1].d:104.1;}
+function segTime(s){
+  const t=+document.getElementById('p-chrono')?.value||16;
+  const bl=t/totalDist();
+  const cs=+document.getElementById('climbS')?.value||3.5;
+  const ds=+document.getElementById('descS')?.value||3;
+  const cf=1+(0.3*(5-cs)/4);const df=1+(0.2*(5-ds)/4);
+  return((s.k1-s.k0)*bl+(s.dp/1000)*cf*0.8+(s.dm/1000)*df*0.25);
 }
+function getPaces(r,sc){const f=sc==='opt'?r.best/r.chrono:sc==='pes'?r.worst/r.chrono:1;return r.paces.map(p=>+(p*f).toFixed(2));}
+function matchScore(r){
+  const myI=+document.getElementById('p-idx')?.value||650;
+  const sens=+document.getElementById('m-sens')?.value||80;
+  const td=totalDist(),tdp=SEGS.reduce((a,s)=>a+s.dp,0)||5834;
+  const d=Math.abs(r.idx-myI);if(d>sens)return 0;
+  let sc=100-(d/sens)*40;
+  if(r.race.includes('UTMJ'))sc+=30;else if(r.dist>=td*0.9&&r.dist<=td*1.1&&r.dp>=tdp*0.85)sc+=15;
+  sc-=Math.abs(r.dp/r.dist-tdp/td)*0.8;
+  if(r.dist>=80)sc+=5;return Math.max(0,Math.min(100,Math.round(sc)));
+}
+
+// ===== GPX FUNCTIONS =====
 function updateGpxStats(){
-  const t=+document.getElementById('p-chrono').value;
-  const pace=(t/104.1*60).toFixed(1);
-  document.getElementById('gpx-chrono').textContent=hms(t);
+  if(!gpxLoaded)return;
+  const t=+document.getElementById('p-chrono').value||16;
+  const td=totalDist();
+  const pace=(t/td*60).toFixed(1);
+  document.getElementById('gpx-chrono').innerHTML=`${hms(t)}`;
   document.getElementById('gpx-pace').innerHTML=`${pace}<span class="metric-unit">mn/km</span>`;
+  computeSegs();
   renderPassage();
+  renderAltChart();
 }
 function renderAltChart(){
+  if(!gpxLoaded)return;
   const ctx=document.getElementById('altChart');
   if(!ctx)return;
   if(altChartInst)altChartInst.destroy();
+  const td=totalDist();
   const rvData=RAVITOS.map(r=>({x:r.km,y:getEle(r.km),name:r.name,assist:r.assist}));
   altChartInst=new Chart(ctx,{
     type:'line',
@@ -705,7 +784,7 @@ function renderAltChart(){
       labels:GPX_PTS.map(p=>p.d),
       datasets:[
         {data:GPX_PTS.map(p=>p.e),borderColor:'#00d4aa',backgroundColor:'rgba(0,212,170,0.06)',fill:true,tension:0.3,pointRadius:0,borderWidth:1.5},
-        {data:rvData.map(r=>({x:r.x,y:r.y})),borderColor:'transparent',backgroundColor:rvData.map(r=>r.assist?'#f5a623':'#00d4aa'),pointRadius:rvData.map(r=>r.km>0&&r.km<104?7:4),showLine:false,pointStyle:rvData.map(r=>r.assist?'triangle':'circle')}
+        {data:rvData.map(r=>({x:r.x,y:r.y})),borderColor:'transparent',backgroundColor:rvData.map(r=>r.assist?'#f5a623':'#00d4aa'),pointRadius:rvData.map(r=>r.km>0&&r.km<td?7:4),showLine:false,pointStyle:rvData.map(r=>r.assist?'triangle':'circle')}
       ]
     },
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
@@ -714,22 +793,21 @@ function renderAltChart(){
 }
 function renderPassage(){
   const tbody=document.getElementById('passage-tbody');
-  if(!tbody)return;
-  const t=+document.getElementById('p-chrono').value;
+  if(!tbody||!gpxLoaded)return;
   let cum=0;tbody.innerHTML='';
   RAVITOS.forEach((rv,i)=>{
-    if(i>0){const s=SEGS[i-1];cum+=segTime(s);}
+    if(i>0&&SEGS[i-1])cum+=segTime(SEGS[i-1]);
     const ele=getEle(rv.km);
     const seg=i>0?SEGS[i-1]:null;
     tbody.innerHTML+=`<tr>
-      <td><strong>${rv.name}</strong><br><span style="font-size:11px;color:var(--text3)">${rv.loc}</span></td>
+      <td><strong>${rv.name}</strong><br><span style="font-size:11px;color:var(--text3)">${rv.loc||''}</span></td>
       <td><strong style="color:var(--text1)">${rv.km}</strong></td>
       <td>${ele}m</td>
       <td style="color:var(--accent2)">${seg?'+'+seg.dp+'m':'—'}</td>
       <td style="color:var(--accent)">${seg?'-'+seg.dm+'m':'—'}</td>
       <td><strong style="color:var(--text1)">${i===0?'Départ':hms(cum)}</strong></td>
       <td style="color:var(--text3)">${seg?hms(segTime(seg)):'—'}</td>
-      <td>${seg?(segTime(seg)/seg.km*60).toFixed(1)+' mn/km':'—'}</td>
+      <td>${seg?((segTime(seg)/(seg.k1-seg.k0))*60).toFixed(1)+' mn/km':'—'}</td>
       <td>${rv.assist?'<span class="badge badge-green">Assistance</span>':'—'}</td>
     </tr>`;
   });
@@ -1050,9 +1128,22 @@ function renderItineraires(){
 
 // ===== INIT =====
 renderActiveSources();
-initGpx();
 renderNutri();
 renderAddSegs();
+// Hidden inputs for sliders used in segTime
+(function(){
+  if(!document.getElementById('climbS')){
+    const i=document.createElement('input');i.type='hidden';i.id='climbS';i.value='3.5';document.body.appendChild(i);
+  }
+  if(!document.getElementById('descS')){
+    const i=document.createElement('input');i.type='hidden';i.id='descS';i.value='3';document.body.appendChild(i);
+  }
+  // Sync sliders to hidden inputs
+  const climbRange=document.querySelector('input[oninput*="climb-out"]');
+  if(climbRange)climbRange.addEventListener('input',function(){document.getElementById('climbS').value=this.value;});
+  const descRange=document.querySelector('input[oninput*="desc-out"]');
+  if(descRange)descRange.addEventListener('input',function(){document.getElementById('descS').value=this.value;});
+})();
 </script>
 </body>
 </html>
