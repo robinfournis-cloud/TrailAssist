@@ -904,19 +904,45 @@ function renderAltChart(){
   const ctx=document.getElementById('altChart');
   if(!ctx)return;
   if(altChartInst)altChartInst.destroy();
-  const td=totalDist();
   const rvData=RAVITOS.map(r=>({x:r.km,y:getEle(r.km),name:r.name,assist:r.assist}));
   altChartInst=new Chart(ctx,{
-    type:'line',
-    data:{
-      labels:GPX_PTS.map(p=>p.d),
-      datasets:[
-        {data:GPX_PTS.map(p=>p.e),borderColor:'#00d4aa',backgroundColor:'rgba(0,212,170,0.06)',fill:true,tension:0.3,pointRadius:0,borderWidth:1.5},
-        {data:rvData.map(r=>({x:r.x,y:r.y})),borderColor:'transparent',backgroundColor:rvData.map(r=>r.assist?'#f5a623':'#00d4aa'),pointRadius:rvData.map(r=>r.km>0&&r.km<td?7:4),showLine:false,pointStyle:rvData.map(r=>r.assist?'triangle':'circle')}
-      ]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{y:{ticks:{color:'#50606e',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#50606e',font:{size:10},maxTicksLimit:12},grid:{color:'rgba(255,255,255,0.04)'}}}}
+    type:'scatter',
+    data:{datasets:[
+      {
+        type:'line',
+        label:'Profil',
+        data:GPX_PTS.map(p=>({x:p.d,y:p.e})),
+        borderColor:'#00d4aa',backgroundColor:'rgba(0,212,170,0.06)',
+        fill:true,tension:0.3,pointRadius:0,borderWidth:1.5,order:2
+      },
+      {
+        type:'scatter',
+        label:'Ravitos',
+        data:rvData.map(r=>({x:r.x,y:r.y})),
+        backgroundColor:rvData.map(r=>r.assist?'#f5a623':'#00d4aa'),
+        borderColor:'#0a0c0f',borderWidth:2,
+        pointRadius:8,
+        pointStyle:rvData.map(r=>r.assist?'triangle':'circle'),
+        order:1
+      }
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:function(i){
+          if(i.datasetIndex===1){
+            const rv=rvData[i.dataIndex];
+            return rv?`${rv.name} — km ${rv.x} · ${rv.y}m`:'';
+          }
+          return`Alt: ${Math.round(i.parsed.y)}m à ${i.parsed.x}km`;
+        }}}
+      },
+      scales:{
+        x:{type:'linear',ticks:{color:'#50606e',font:{size:10},maxTicksLimit:12,callback:v=>v+'km'},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{ticks:{color:'#50606e',font:{size:10},callback:v=>v+'m'},grid:{color:'rgba(255,255,255,0.04)'}}
+      }
+    }
   });
 }
 function renderPassage(){
