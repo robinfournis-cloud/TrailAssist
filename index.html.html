@@ -885,7 +885,7 @@ function onGpxLoaded(name,dist,dp,dm,npts){
   renderRavitoEditor();
   updateGpxStats();
   renderAltChart();
-  setTimeout(()=>renderMap(), 100);
+  setTimeout(()=>renderMap(), 400);
 }
 function resetGpx(){
   GPX_PTS=[];GPX_RAW_COORDS=[];RAVITOS=[];SEGS=[];gpxLoaded=false;gpxName='';
@@ -952,7 +952,6 @@ function updateGpxStats(){
   computeSegs();
   renderPassage();
   renderAltChart();
-  setTimeout(()=>renderMap(),50);
 }
 function renderAltChart(){
   if(!gpxLoaded)return;
@@ -1003,66 +1002,78 @@ function renderAltChart(){
 
 // ===== MAP =====
 let leafletMap = null;
-let mapTrackLayer = null;
-let mapMarkerGroup = null;
 
 function renderMap(){
   if(!gpxLoaded) return;
-  // Besoin de coords lat/lon — on les a stockées lors du parsing
   if(!GPX_RAW_COORDS || GPX_RAW_COORDS.length < 2) return;
 
   const mapEl = document.getElementById('gpx-map');
   if(!mapEl) return;
 
-  // Init ou reset carte
+  // Détruire la carte existante proprement
   if(leafletMap){
+    leafletMap.off();
     leafletMap.remove();
     leafletMap = null;
   }
 
-  leafletMap = L.map('gpx-map', {zoomControl:true, attributionControl:false});
+  // Vider le conteneur (Leaflet peut laisser des résidus)
+  mapEl.innerHTML = '';
 
-  // Tuiles OpenStreetMap
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    maxZoom:18,
-    attribution:'© OpenStreetMap'
-  }).addTo(leafletMap);
+  // Délai pour s'assurer que le DOM est visible et a une taille réelle
+  setTimeout(function(){
+    try {
+      leafletMap = L.map(mapEl, {
+        zoomControl: true,
+        attributionControl: true,
+        preferCanvas: true
+      });
 
-  // Tracé GPX
-  const latlngs = GPX_RAW_COORDS.map(p=>[p.lat, p.lon]);
-  const polyline = L.polyline(latlngs, {
-    color:'#00d4aa',
-    weight:3,
-    opacity:0.9
-  }).addTo(leafletMap);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+      }).addTo(leafletMap);
 
-  // Marqueurs ravitos
-  RAVITOS.forEach((rv, i) => {
-    const coord = getLatLonAtKm(rv.km);
-    if(!coord) return;
-    const isFirst = i === 0;
-    const isLast = i === RAVITOS.length - 1;
-    const color = rv.assist ? '#f5a623' : (isFirst||isLast ? '#00d4aa' : '#0099ff');
-    const size = (isFirst||isLast) ? 14 : 10;
-    const icon = L.divIcon({
-      className:'',
-      html:`<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2.5px solid #0a0c0f;box-shadow:0 0 0 1px ${color}44"></div>`,
-      iconSize:[size,size],
-      iconAnchor:[size/2,size/2]
-    });
-    const ele = getEle(rv.km);
-    L.marker([coord.lat, coord.lon], {icon})
-      .bindPopup(`<div style="font-family:sans-serif;font-size:13px;min-width:120px">
-        <strong>${rv.name}</strong><br>
-        <span style="color:#666">${rv.loc||''}</span><br>
-        Km ${rv.km} · ${ele}m alt<br>
-        ${rv.assist?'<span style="color:#f5a623;font-weight:500">✦ Assistance</span>':''}
-      </div>`, {closeButton:false})
-      .addTo(leafletMap);
-  });
+      // Tracé
+      const latlngs = GPX_RAW_COORDS.map(p => [p.lat, p.lon]);
+      const polyline = L.polyline(latlngs, {
+        color: '#00d4aa',
+        weight: 3.5,
+        opacity: 0.95
+      }).addTo(leafletMap);
 
-  // Zoom sur le tracé
-  leafletMap.fitBounds(polyline.getBounds(), {padding:[16,16]});
+      // Marqueurs ravitos
+      RAVITOS.forEach((rv, i) => {
+        const coord = getLatLonAtKm(rv.km);
+        if(!coord) return;
+        const isFirst = i === 0;
+        const isLast = i === RAVITOS.length - 1;
+        const color = rv.assist ? '#f5a623' : (isFirst||isLast ? '#00d4aa' : '#0099ff');
+        const sz = isFirst||isLast ? 14 : 11;
+        const icon = L.divIcon({
+          className: '',
+          html: `<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${color};border:2px solid rgba(0,0,0,0.6);"></div>`,
+          iconSize: [sz, sz],
+          iconAnchor: [sz/2, sz/2]
+        });
+        const ele = getEle(rv.km);
+        L.marker([coord.lat, coord.lon], {icon})
+          .bindPopup(`<b>${rv.name}</b><br>${rv.loc||''}<br>Km ${rv.km} · ${ele}m${rv.assist?'<br><span style="color:#f5a623">▲ Assistance</span>':''}`)
+          .addTo(leafletMap);
+      });
+
+      // Zoom sur le tracé puis invalidateSize
+      leafletMap.fitBounds(polyline.getBounds(), {padding: [20, 20]});
+
+      // Forcer le recalcul de taille après le zoom
+      setTimeout(function(){
+        if(leafletMap) leafletMap.invalidateSize(true);
+      }, 200);
+
+    } catch(e) {
+      console.error('Leaflet map error:', e);
+    }
+  }, 300);
 }
 
 function getLatLonAtKm(km) {
