@@ -336,19 +336,8 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
         <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:12px;height:2px;background:var(--accent);display:inline-block;border-radius:1px"></span>Profil GPX</span>
         <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></span>Ravito</span>
         <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:8px solid var(--warn);display:inline-block"></span>Assistance</span>
+        <a href="#" id="gpx-maps-link" target="_blank" style="margin-left:auto;font-size:11px;color:var(--accent);text-decoration:none;border:1px solid rgba(0,212,170,0.3);border-radius:5px;padding:3px 10px;display:none">Voir sur Google Maps →</a>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">Tracé sur carte</span>
-        <div style="display:flex;gap:8px;align-items:center">
-          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:12px;height:3px;background:var(--accent);display:inline-block;border-radius:1px"></span>Tracé</span>
-          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block;border:2px solid #0a0c0f"></span>Ravito</span>
-          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:10px;border-radius:50%;background:var(--warn);display:inline-block;border:2px solid #0a0c0f"></span>Assistance</span>
-        </div>
-      </div>
-      <div id="gpx-map" style="height:380px;border-radius:var(--r);overflow:hidden;background:var(--bg3)"></div>
     </div>
 
     <div class="card">
@@ -483,7 +472,15 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
 
   <div id="db-add" class="subsec">
     <div class="card">
-      <div class="card-head"><span class="card-title">Nouveau coureur de référence</span></div>
+      <div class="card-head">
+        <span class="card-title">Nouveau coureur de référence</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" onclick="showSubsec('db','runners')">Annuler</button>
+          <button class="btn btn-sm btn-accent" onclick="saveNewRunner()">Enregistrer</button>
+        </div>
+      </div>
+
+      <!-- Sources -->
       <div style="margin-bottom:16px;padding:10px 12px;background:var(--bg3);border-radius:var(--r);border-left:2px solid var(--strava)">
         <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-display);margin-bottom:6px">Sources recommandées</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -494,22 +491,72 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
           <a href="https://www.livetrail.net" target="_blank" style="font-size:12px;color:var(--text2);text-decoration:none;border:1px solid var(--border2);border-radius:5px;padding:3px 10px">livetrail.net →</a>
         </div>
       </div>
+
+      <!-- Identité -->
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-display);margin-bottom:10px">Identité du coureur</div>
       <div class="form-grid">
         <div class="form-row"><label class="lbl">Nom</label><input type="text" id="add-name" placeholder="Prénom N."/></div>
         <div class="form-row"><label class="lbl">Index UTMB</label><input type="number" id="add-idx" placeholder="650"/></div>
-        <div class="form-row"><label class="lbl">Niveau BeTrail</label><input type="number" id="add-bt" placeholder="12.5"/></div>
-        <div class="form-row"><label class="lbl">URL Strava activité</label><input type="text" id="add-url" placeholder="https://strava.com/activities/..."/></div>
-        <div class="form-row"><label class="lbl">Course de référence</label><input type="text" id="add-race" placeholder="UTMJ 2024"/></div>
-        <div class="form-row"><label class="lbl">Chrono (ex: 15h28)</label><input type="text" id="add-time" placeholder="15h28"/></div>
-        <div class="form-row"><label class="lbl">Distance (km)</label><input type="number" id="add-dist" placeholder="104"/></div>
-        <div class="form-row"><label class="lbl">D+ (m)</label><input type="number" id="add-dp" placeholder="5834"/></div>
-        <div class="form-row"><label class="lbl">FC moy / FC max</label><div style="display:flex;gap:6px"><input type="number" id="add-hrmoy" placeholder="148"/><input type="number" id="add-hrmax" placeholder="172"/></div></div>
+        <div class="form-row"><label class="lbl">Niveau BeTrail</label><input type="number" id="add-bt" placeholder="12.5" step="0.1"/></div>
+        <div class="form-row"><label class="lbl">URL Strava profil</label><input type="text" id="add-url" placeholder="https://strava.com/athletes/..."/></div>
+        <div class="form-row"><label class="lbl">FC moy / FC max</label>
+          <div style="display:flex;gap:6px">
+            <input type="number" id="add-hrmoy" placeholder="148"/>
+            <input type="number" id="add-hrmax" placeholder="172"/>
+          </div>
+        </div>
       </div>
+
       <div class="accentline"></div>
-      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-display);margin-bottom:10px">Splits par segment GPX (calés sur les ravitos)</div>
+
+      <!-- Bloc 1 : Course de référence (même course) -->
+      <div style="font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-display);margin-bottom:4px">Course de référence — même tracé</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Idéalement la même course (UTMJ, même édition ou édition précédente). Saisissez les temps de passage à chaque ravito depuis Strava ou LiveTrail.</div>
+
+      <div class="form-grid2" style="margin-bottom:12px">
+        <div class="form-row"><label class="lbl">Nom de la course</label><input type="text" id="add-race1" placeholder="UTMJ 2024"/></div>
+        <div class="form-row"><label class="lbl">Chrono total</label><input type="text" id="add-time1" placeholder="15h28"/></div>
+        <div class="form-row"><label class="lbl">Distance (km)</label><input type="number" id="add-dist1" placeholder="104"/></div>
+        <div class="form-row"><label class="lbl">D+ (m)</label><input type="number" id="add-dp1" placeholder="5834"/></div>
+        <div class="form-row"><label class="lbl">URL Strava activité</label><input type="text" id="add-strava1" placeholder="https://strava.com/activities/..."/></div>
+        <div class="form-row"><label class="lbl">Allure moy. (mn/km)</label><input type="number" id="add-pace1" placeholder="8.9" step="0.1"/></div>
+      </div>
+
+      <!-- Temps de passage course 1 calés sur les ravitos GPX -->
+      <div id="add-ravito-times-1">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-family:var(--font-display);margin-bottom:8px">Temps de passage aux ravitos — course de référence</div>
+        <div id="ravito-splits-1"></div>
+      </div>
+
+      <div class="accentline"></div>
+
+      <!-- Bloc 2 : Course de profil similaire -->
+      <div style="font-size:11px;color:var(--accent2);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-display);margin-bottom:4px">Course à profil similaire (optionnel)</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Course avec distance et D+ comparables (+/-15%). Permet d'enrichir l'analyse si la course de référence n'est pas disponible.</div>
+
+      <div class="form-grid2" style="margin-bottom:12px">
+        <div class="form-row"><label class="lbl">Nom de la course</label><input type="text" id="add-race2" placeholder="ex: Trail des Montagnes 100k"/></div>
+        <div class="form-row"><label class="lbl">Chrono total</label><input type="text" id="add-time2" placeholder="16h10"/></div>
+        <div class="form-row"><label class="lbl">Distance (km)</label><input type="number" id="add-dist2" placeholder="98"/></div>
+        <div class="form-row"><label class="lbl">D+ (m)</label><input type="number" id="add-dp2" placeholder="5400"/></div>
+        <div class="form-row"><label class="lbl">URL Strava activité</label><input type="text" id="add-strava2" placeholder="https://strava.com/activities/..."/></div>
+        <div class="form-row"><label class="lbl">Allure moy. (mn/km)</label><input type="number" id="add-pace2" placeholder="9.4" step="0.1"/></div>
+      </div>
+
+      <div id="add-ravito-times-2">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-family:var(--font-display);margin-bottom:8px">Temps de passage (segments approximatifs)</div>
+        <div id="ravito-splits-2"></div>
+      </div>
+
+      <div class="accentline"></div>
+
+      <!-- Splits par segment GPX -->
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-display);margin-bottom:4px">Allures calculées par segment GPX</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Renseignés automatiquement depuis les temps de passage ci-dessus, ou à saisir manuellement.</div>
       <div id="add-seg-inputs"></div>
+
       <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">
-        <button class="btn btn-sm">Annuler</button>
+        <button class="btn btn-sm" onclick="showSubsec('db','runners')">Annuler</button>
         <button class="btn btn-sm btn-accent" onclick="saveNewRunner()">Enregistrer le coureur</button>
       </div>
     </div>
@@ -885,7 +932,16 @@ function onGpxLoaded(name,dist,dp,dm,npts){
   renderRavitoEditor();
   updateGpxStats();
   renderAltChart();
-  setTimeout(()=>renderMap(), 400);
+  // Lien Google Maps avec le point de départ
+  if(GPX_RAW_COORDS.length){
+    const start = GPX_RAW_COORDS[0];
+    const end = GPX_RAW_COORDS[GPX_RAW_COORDS.length-1];
+    const link = document.getElementById('gpx-maps-link');
+    if(link){
+      link.href = `https://www.google.com/maps/dir/${start.lat},${start.lon}/${end.lat},${end.lon}`;
+      link.style.display = 'inline-flex';
+    }
+  }
 }
 function resetGpx(){
   GPX_PTS=[];GPX_RAW_COORDS=[];RAVITOS=[];SEGS=[];gpxLoaded=false;gpxName='';
@@ -999,108 +1055,6 @@ function renderAltChart(){
   });
 }
 
-// ===== MAP SVG =====
-function renderMap(){
-  if(!gpxLoaded) return;
-  if(!GPX_RAW_COORDS || GPX_RAW_COORDS.length < 2) return;
-  const mapEl = document.getElementById('gpx-map');
-  if(!mapEl) return;
-
-  const W = mapEl.clientWidth || 800;
-  const H = 380;
-
-  // Bounding box des coords
-  const lats = GPX_RAW_COORDS.map(p=>p.lat);
-  const lons = GPX_RAW_COORDS.map(p=>p.lon);
-  const minLat=Math.min(...lats), maxLat=Math.max(...lats);
-  const minLon=Math.min(...lons), maxLon=Math.max(...lons);
-
-  const pad = 32;
-  const scaleX = (W - pad*2) / (maxLon - minLon || 1);
-  const scaleY = (H - pad*2) / (maxLat - minLat || 1);
-  const scale = Math.min(scaleX, scaleY);
-
-  // Centre
-  const offX = (W - (maxLon-minLon)*scale) / 2;
-  const offY = (H - (maxLat-minLat)*scale) / 2;
-
-  function toSVG(lat, lon){
-    return {
-      x: offX + (lon - minLon) * scale,
-      y: H - offY - (lat - minLat) * scale
-    };
-  }
-
-  // Polyline du tracé
-  const pts = GPX_RAW_COORDS.map(p => {
-    const {x,y} = toSVG(p.lat, p.lon);
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(' ');
-
-  // Marqueurs ravitos
-  let markers = '';
-  RAVITOS.forEach((rv, i) => {
-    const coord = getLatLonAtKm(rv.km);
-    if(!coord) return;
-    const {x,y} = toSVG(coord.lat, coord.lon);
-    const isFirst = i===0, isLast = i===RAVITOS.length-1;
-    const color = rv.assist ? '#f5a623' : (isFirst||isLast ? '#00d4aa' : '#0099ff');
-    const r = isFirst||isLast ? 7 : 5;
-    const label = rv.name.length > 10 ? rv.name.slice(0,10)+'…' : rv.name;
-    // Ombre du label
-    markers += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r+2}" fill="${color}" opacity="0.25"/>`;
-    markers += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${color}" stroke="#0a0c0f" stroke-width="1.5"/>`;
-    // Label au-dessus
-    const lx = x.toFixed(1), ly = (y-r-5).toFixed(1);
-    markers += `<text x="${lx}" y="${ly}" text-anchor="middle" font-size="10" font-family="Barlow,sans-serif" fill="${color}" font-weight="600">${label}</text>`;
-  });
-
-  // Lignes de grille légères
-  const gridLines = [];
-  const nGrid = 4;
-  for(let i=1;i<nGrid;i++){
-    const gx = offX + ((maxLon-minLon)/nGrid*i)*scale;
-    const gy = H - offY - ((maxLat-minLat)/nGrid*i)*scale;
-    gridLines.push(`<line x1="${gx.toFixed(0)}" y1="0" x2="${gx.toFixed(0)}" y2="${H}" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>`);
-    gridLines.push(`<line x1="0" y1="${gy.toFixed(0)}" x2="${W}" y2="${gy.toFixed(0)}" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>`);
-  }
-
-  // Km labels sur axe
-  const kmLabels = [];
-  const totalKm = Math.round(GPX_RAW_COORDS[GPX_RAW_COORDS.length-1].dist/1000);
-  const kmStep = totalKm > 80 ? 20 : totalKm > 40 ? 10 : 5;
-  for(let k=0; k<=totalKm; k+=kmStep){
-    const coord2 = getLatLonAtKm(k);
-    if(!coord2) continue;
-    const {x,y} = toSVG(coord2.lat, coord2.lon);
-    kmLabels.push(`<text x="${x.toFixed(1)}" y="${(y+3).toFixed(1)}" text-anchor="middle" font-size="9" font-family="Barlow,sans-serif" fill="rgba(255,255,255,0.25)">${k}km</text>`);
-  }
-
-  mapEl.innerHTML = `<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="display:block;background:#181d23;border-radius:8px">
-    <rect width="${W}" height="${H}" fill="#181d23" rx="8"/>
-    ${gridLines.join('')}
-    <polyline points="${pts}" fill="none" stroke="rgba(0,212,170,0.25)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-    <polyline points="${pts}" fill="none" stroke="#00d4aa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    ${kmLabels.join('')}
-    ${markers}
-    <text x="${pad}" y="${H-10}" font-size="10" font-family="Barlow,sans-serif" fill="rgba(255,255,255,0.2)">${gpxName} · ${totalKm}km</text>
-  </svg>`;
-}
-
-function getLatLonAtKm(km) {
-  if(!GPX_RAW_COORDS || !GPX_RAW_COORDS.length) return null;
-  const target = km * 1000;
-  for(let i=1;i<GPX_RAW_COORDS.length;i++){
-    if(GPX_RAW_COORDS[i].dist >= target){
-      const t = (target - GPX_RAW_COORDS[i-1].dist) / (GPX_RAW_COORDS[i].dist - GPX_RAW_COORDS[i-1].dist);
-      return {
-        lat: GPX_RAW_COORDS[i-1].lat + (GPX_RAW_COORDS[i].lat - GPX_RAW_COORDS[i-1].lat)*t,
-        lon: GPX_RAW_COORDS[i-1].lon + (GPX_RAW_COORDS[i].lon - GPX_RAW_COORDS[i-1].lon)*t
-      };
-    }
-  }
-  return {lat: GPX_RAW_COORDS[GPX_RAW_COORDS.length-1].lat, lon: GPX_RAW_COORDS[GPX_RAW_COORDS.length-1].lon};
-}
 function renderPassage(){
   const tbody=document.getElementById('passage-tbody');
   if(!tbody||!gpxLoaded)return;
@@ -1163,31 +1117,140 @@ function toggleRunner(id){
   renderRunnersList();
 }
 function renderAddSegs(){
-  const c=document.getElementById('add-seg-inputs');
-  if(!c)return;
-  c.innerHTML=`<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);margin-bottom:4px"><span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Segment</span><span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Dist</span><span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">D+</span><span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Temps</span><span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Allure</span></div>`+
-  SEGS.map((s,i)=>{const d=s.k1-s.k0;return`<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
-    <div><div style="font-size:12px;font-weight:500;color:var(--text1)">${s.from}</div><div style="font-size:10px;color:var(--text3)">${s.k0}→${s.k1}km</div></div>
-    <div style="font-size:12px;color:var(--text3)">${d}km</div>
-    <div style="font-size:12px;color:#5ea3d4">+${s.dp}m</div>
-    <input type="text" id="as-t${i}" placeholder="1h24" style="font-size:12px;padding:5px 8px"/>
-    <input type="number" id="as-p${i}" placeholder="8.4" step="0.1" style="font-size:12px;padding:5px 8px"/>
-  </div>`}).join('');
+  // Splits ravitos course 1
+  const r1 = document.getElementById('ravito-splits-1');
+  const r2 = document.getElementById('ravito-splits-2');
+  const segIn = document.getElementById('add-seg-inputs');
+  if(!r1||!r2||!segIn) return;
+
+  if(!gpxLoaded || !RAVITOS.length){
+    const msg = '<div style="font-size:12px;color:var(--text3);padding:8px 0">Importez d\'abord un fichier GPX pour afficher les ravitos.</div>';
+    r1.innerHTML = msg; r2.innerHTML = msg;
+    segIn.innerHTML = msg;
+    return;
+  }
+
+  // Header commun
+  const header = `<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);margin-bottom:4px">
+    <span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Point</span>
+    <span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Km</span>
+    <span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Temps passage</span>
+    <span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Tps seg.</span>
+  </div>`;
+
+  const rows = (prefix) => RAVITOS.map((rv,i)=>{
+    const ele = getEle(rv.km);
+    return `<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)${i===RAVITOS.length-1?';border-bottom:none':''}">
+      <div>
+        <div style="font-size:12px;font-weight:500;color:var(--text1)">${rv.name}</div>
+        <div style="font-size:10px;color:var(--text3)">${rv.loc||''} · ${ele}m${rv.assist?' · <span style="color:var(--warn)">Assistance</span>':''}</div>
+      </div>
+      <div style="font-size:12px;color:var(--text3)">${rv.km} km</div>
+      <input type="text" id="${prefix}-pass-${i}" placeholder="${i===0?'Départ':'ex: 3h45'}"
+        ${i===0?'value="Départ" disabled style="opacity:.5"':''}
+        oninput="autoCalcSegTime('${prefix}',${i})"
+        style="font-size:12px;padding:5px 8px"/>
+      <div style="font-size:12px;color:var(--text3)" id="${prefix}-seg-${i}">—</div>
+    </div>`;
+  }).join('');
+
+  r1.innerHTML = header + rows('r1');
+  r2.innerHTML = header + rows('r2');
+
+  // Segments GPX (allures)
+  segIn.innerHTML = `<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);margin-bottom:4px">
+    <span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Segment</span>
+    <span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Dist</span>
+    <span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">D+</span>
+    <span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Temps seg</span>
+    <span style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Allure</span>
+  </div>` +
+  SEGS.map((s,i)=>{
+    const d = s.k1-s.k0;
+    return `<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+      <div><div style="font-size:12px;font-weight:500;color:var(--text1)">${s.from} → ${s.to}</div><div style="font-size:10px;color:var(--text3)">${s.k0}→${s.k1}km</div></div>
+      <div style="font-size:12px;color:var(--text3)">${d}km</div>
+      <div style="font-size:12px;color:var(--accent2)">+${s.dp}m</div>
+      <input type="text" id="as-t${i}" placeholder="1h24" style="font-size:12px;padding:5px 8px" oninput="autoSegPace(${i},${d})"/>
+      <input type="number" id="as-p${i}" placeholder="8.4" step="0.1" style="font-size:12px;padding:5px 8px" oninput="autoSegTime(${i},${d})"/>
+    </div>`;
+  }).join('');
+}
+
+function autoCalcSegTime(prefix, idx){
+  // Calcule le temps de segment depuis les temps de passage cumulés
+  if(idx === 0) return;
+  const prevEl = document.getElementById(`${prefix}-pass-${idx-1}`);
+  const currEl = document.getElementById(`${prefix}-pass-${idx}`);
+  const segEl = document.getElementById(`${prefix}-seg-${idx}`);
+  if(!prevEl||!currEl||!segEl) return;
+  const prevH = idx===1 ? 0 : parseH(prevEl.value);
+  const currH = parseH(currEl.value);
+  if(currH > 0 && currH > prevH){
+    const diff = currH - prevH;
+    segEl.textContent = hms(diff);
+    // Auto-fill allure segment correspondant
+    const seg = SEGS[idx-1];
+    if(seg){
+      const d = seg.k1-seg.k0;
+      const pace = (diff/d*60).toFixed(1);
+      const pEl = document.getElementById(`as-p${idx-1}`);
+      const tEl = document.getElementById(`as-t${idx-1}`);
+      if(pEl && !pEl.value) pEl.value = pace;
+      if(tEl && !tEl.value) tEl.value = hms(diff);
+    }
+  } else {
+    segEl.textContent = '—';
+  }
+}
+
+function autoSegPace(i, dist){
+  const t = document.getElementById('as-t'+i)?.value;
+  const h = parseH(t);
+  if(h>0&&dist>0){
+    const p = document.getElementById('as-p'+i);
+    if(p) p.value = (h*60/dist).toFixed(1);
+  }
+}
+function autoSegTime(i, dist){
+  const p = +document.getElementById('as-p'+i)?.value;
+  if(p>0&&dist>0){
+    const t = document.getElementById('as-t'+i);
+    if(t) t.value = hms(p*dist/60);
+  }
 }
 function saveNewRunner(){
   const name=document.getElementById('add-name')?.value?.trim();
-  if(!name)return;
-  const newR={id:Date.now(),name,ini:name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),
+  if(!name){alert('Saisissez un nom.');return;}
+  const newR={
+    id:Date.now(),
+    name,
+    ini:name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),
     col:'#'+Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0'),
     idx:+document.getElementById('add-idx')?.value||0,
-    race:document.getElementById('add-race')?.value||'',
-    dist:+document.getElementById('add-dist')?.value||104,
-    dp:+document.getElementById('add-dp')?.value||5834,
-    chrono:parseH(document.getElementById('add-time')?.value)||15,
-    best:parseH(document.getElementById('add-time')?.value)*0.95||14,
-    worst:parseH(document.getElementById('add-time')?.value)*1.1||16.5,
-    paces:SEGS.map((_,i)=>+document.getElementById(`as-p${i}`)?.value||9),
-    url:document.getElementById('add-url')?.value||''};
+    betrail:+document.getElementById('add-bt')?.value||0,
+    url:document.getElementById('add-url')?.value?.trim()||'',
+    hrMoy:+document.getElementById('add-hrmoy')?.value||0,
+    hrMax:+document.getElementById('add-hrmax')?.value||0,
+    // Course 1
+    race:document.getElementById('add-race1')?.value||'',
+    chrono:parseH(document.getElementById('add-time1')?.value)||0,
+    dist:+document.getElementById('add-dist1')?.value||0,
+    dp:+document.getElementById('add-dp1')?.value||0,
+    stravaUrl1:document.getElementById('add-strava1')?.value||'',
+    // Course 2
+    race2:document.getElementById('add-race2')?.value||'',
+    chrono2:parseH(document.getElementById('add-time2')?.value)||0,
+    dist2:+document.getElementById('add-dist2')?.value||0,
+    dp2:+document.getElementById('add-dp2')?.value||0,
+    stravaUrl2:document.getElementById('add-strava2')?.value||'',
+    // Allures par segment
+    paces:SEGS.map((_,i)=>+document.getElementById('as-p'+i)?.value||0),
+    best:0, worst:0
+  };
+  // Best/worst depuis chrono ±8%
+  newR.best = +(newR.chrono * 0.92).toFixed(2);
+  newR.worst = +(newR.chrono * 1.10).toFixed(2);
   RUNNERS.push(newR);
   alert(`Coureur "${name}" ajouté avec succès !`);
   showSubsec('db','runners');
