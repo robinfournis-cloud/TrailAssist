@@ -341,6 +341,18 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
 
     <div class="card">
       <div class="card-head">
+        <span class="card-title">Tracé sur carte</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:12px;height:3px;background:var(--accent);display:inline-block;border-radius:1px"></span>Tracé</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block;border:2px solid #0a0c0f"></span>Ravito</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:10px;border-radius:50%;background:var(--warn);display:inline-block;border:2px solid #0a0c0f"></span>Assistance</span>
+        </div>
+      </div>
+      <div id="gpx-map" style="height:380px;border-radius:var(--r);overflow:hidden;background:var(--bg3)"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
         <span class="card-title">Ravitaillements & segments</span>
         <button class="btn btn-sm" onclick="addRavito()">+ Ajouter ravito</button>
       </div>
@@ -658,6 +670,7 @@ const DEMO_RAVITOS=[
 
 // State GPX dynamique
 let GPX_PTS = [];
+let GPX_RAW_COORDS = []; // lat/lon complets pour la carte
 let RAVITOS = [];
 let gpxLoaded = false;
 let gpxName = '';
@@ -797,6 +810,8 @@ function parseGpxXml(xml,name){
       }
       rawPts.push({lat,lon,ele,dist});
     });
+    // Stocker les coords brutes pour la carte
+    GPX_RAW_COORDS = rawPts;
     const step=Math.max(1,Math.floor(rawPts.length/300));
     GPX_PTS=rawPts.filter((_,i)=>i%step===0||i===rawPts.length-1).map(p=>({d:+( p.dist/1000).toFixed(2),e:Math.round(p.ele)}));
     const totalKm=+(dist/1000).toFixed(1);
@@ -811,6 +826,43 @@ function parseGpxXml(xml,name){
 function loadDemoGpx(){
   GPX_PTS=[...DEMO_GPX_PTS];
   RAVITOS=DEMO_RAVITOS.map(r=>({...r}));
+  // Coordonnées réelles UTMJ tracé approximatif Les Rousses → Mouthe → Métabief
+  GPX_RAW_COORDS = [
+    {lat:46.484,lon:6.059,ele:1106,dist:0},
+    {lat:46.502,lon:6.042,ele:1050,dist:2500},
+    {lat:46.518,lon:6.025,ele:920,dist:5500},
+    {lat:46.532,lon:6.010,ele:840,dist:8000},
+    {lat:46.537,lon:6.016,ele:815,dist:19000},
+    {lat:46.548,lon:6.035,ele:900,dist:22000},
+    {lat:46.562,lon:6.058,ele:980,dist:24500},
+    {lat:46.570,lon:6.085,ele:1060,dist:26000},
+    {lat:46.582,lon:6.098,ele:1085,dist:36000},
+    {lat:46.598,lon:6.115,ele:1353,dist:33700},
+    {lat:46.612,lon:6.130,ele:1088,dist:37400},
+    {lat:46.630,lon:6.145,ele:1100,dist:42000},
+    {lat:46.648,lon:6.158,ele:1123,dist:47600},
+    {lat:46.665,lon:6.170,ele:1074,dist:48900},
+    {lat:46.680,lon:6.180,ele:1071,dist:51000},
+    {lat:46.700,lon:6.185,ele:948,dist:53800},
+    {lat:46.710,lon:6.193,ele:950,dist:56000},
+    {lat:46.720,lon:6.210,ele:1003,dist:58000},
+    {lat:46.735,lon:6.225,ele:1122,dist:61000},
+    {lat:46.748,lon:6.245,ele:1231,dist:67600},
+    {lat:46.758,lon:6.268,ele:1427,dist:70800},
+    {lat:46.748,lon:6.290,ele:1329,dist:72600},
+    {lat:46.735,lon:6.305,ele:1020,dist:75000},
+    {lat:46.730,lon:6.318,ele:1003,dist:78400},
+    {lat:46.742,lon:6.330,ele:1020,dist:80900},
+    {lat:46.758,lon:6.345,ele:1211,dist:83800},
+    {lat:46.765,lon:6.358,ele:1253,dist:86600},
+    {lat:46.770,lon:6.368,ele:1520,dist:89400},
+    {lat:46.762,lon:6.358,ele:1282,dist:92300},
+    {lat:46.755,lon:6.348,ele:1228,dist:94900},
+    {lat:46.748,lon:6.340,ele:988,dist:97600},
+    {lat:46.742,lon:6.332,ele:1001,dist:100600},
+    {lat:46.730,lon:6.320,ele:1062,dist:103600},
+    {lat:46.484,lon:6.059,ele:1016,dist:104070}
+  ];
   gpxName='UTMJ Franco-Suisse 105km 2024';
   gpxLoaded=true;
   onGpxLoaded('UTMJ Franco-Suisse 105km',104.1,5834,5924,6284);
@@ -833,14 +885,16 @@ function onGpxLoaded(name,dist,dp,dm,npts){
   renderRavitoEditor();
   updateGpxStats();
   renderAltChart();
+  setTimeout(()=>renderMap(), 100);
 }
 function resetGpx(){
-  GPX_PTS=[];RAVITOS=[];SEGS=[];gpxLoaded=false;gpxName='';
+  GPX_PTS=[];GPX_RAW_COORDS=[];RAVITOS=[];SEGS=[];gpxLoaded=false;gpxName='';
   document.getElementById('gpx-import-zone').style.display='block';
   document.getElementById('gpx-loaded-zone').style.display='none';
   document.getElementById('banner-name').textContent='Aucune course chargée';
   ['banner-dist','banner-dp','banner-dm','banner-pts'].forEach(id=>document.getElementById(id).style.display='none');
   if(altChartInst){altChartInst.destroy();altChartInst=null;}
+  if(leafletMap){leafletMap.remove();leafletMap=null;}
   const inp=document.getElementById('gpx-file-input');
   if(inp)inp.value='';
 }
@@ -898,6 +952,7 @@ function updateGpxStats(){
   computeSegs();
   renderPassage();
   renderAltChart();
+  setTimeout(()=>renderMap(),50);
 }
 function renderAltChart(){
   if(!gpxLoaded)return;
@@ -944,6 +999,85 @@ function renderAltChart(){
       }
     }
   });
+}
+
+// ===== MAP =====
+let leafletMap = null;
+let mapTrackLayer = null;
+let mapMarkerGroup = null;
+
+function renderMap(){
+  if(!gpxLoaded) return;
+  // Besoin de coords lat/lon — on les a stockées lors du parsing
+  if(!GPX_RAW_COORDS || GPX_RAW_COORDS.length < 2) return;
+
+  const mapEl = document.getElementById('gpx-map');
+  if(!mapEl) return;
+
+  // Init ou reset carte
+  if(leafletMap){
+    leafletMap.remove();
+    leafletMap = null;
+  }
+
+  leafletMap = L.map('gpx-map', {zoomControl:true, attributionControl:false});
+
+  // Tuiles OpenStreetMap
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:18,
+    attribution:'© OpenStreetMap'
+  }).addTo(leafletMap);
+
+  // Tracé GPX
+  const latlngs = GPX_RAW_COORDS.map(p=>[p.lat, p.lon]);
+  const polyline = L.polyline(latlngs, {
+    color:'#00d4aa',
+    weight:3,
+    opacity:0.9
+  }).addTo(leafletMap);
+
+  // Marqueurs ravitos
+  RAVITOS.forEach((rv, i) => {
+    const coord = getLatLonAtKm(rv.km);
+    if(!coord) return;
+    const isFirst = i === 0;
+    const isLast = i === RAVITOS.length - 1;
+    const color = rv.assist ? '#f5a623' : (isFirst||isLast ? '#00d4aa' : '#0099ff');
+    const size = (isFirst||isLast) ? 14 : 10;
+    const icon = L.divIcon({
+      className:'',
+      html:`<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2.5px solid #0a0c0f;box-shadow:0 0 0 1px ${color}44"></div>`,
+      iconSize:[size,size],
+      iconAnchor:[size/2,size/2]
+    });
+    const ele = getEle(rv.km);
+    L.marker([coord.lat, coord.lon], {icon})
+      .bindPopup(`<div style="font-family:sans-serif;font-size:13px;min-width:120px">
+        <strong>${rv.name}</strong><br>
+        <span style="color:#666">${rv.loc||''}</span><br>
+        Km ${rv.km} · ${ele}m alt<br>
+        ${rv.assist?'<span style="color:#f5a623;font-weight:500">✦ Assistance</span>':''}
+      </div>`, {closeButton:false})
+      .addTo(leafletMap);
+  });
+
+  // Zoom sur le tracé
+  leafletMap.fitBounds(polyline.getBounds(), {padding:[16,16]});
+}
+
+function getLatLonAtKm(km) {
+  if(!GPX_RAW_COORDS || !GPX_RAW_COORDS.length) return null;
+  const target = km * 1000;
+  for(let i=1;i<GPX_RAW_COORDS.length;i++){
+    if(GPX_RAW_COORDS[i].dist >= target){
+      const t = (target - GPX_RAW_COORDS[i-1].dist) / (GPX_RAW_COORDS[i].dist - GPX_RAW_COORDS[i-1].dist);
+      return {
+        lat: GPX_RAW_COORDS[i-1].lat + (GPX_RAW_COORDS[i].lat - GPX_RAW_COORDS[i-1].lat)*t,
+        lon: GPX_RAW_COORDS[i-1].lon + (GPX_RAW_COORDS[i].lon - GPX_RAW_COORDS[i-1].lon)*t
+      };
+    }
+  }
+  return {lat: GPX_RAW_COORDS[GPX_RAW_COORDS.length-1].lat, lon: GPX_RAW_COORDS[GPX_RAW_COORDS.length-1].lon};
 }
 function renderPassage(){
   const tbody=document.getElementById('passage-tbody');
