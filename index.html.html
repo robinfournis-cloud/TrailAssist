@@ -760,14 +760,18 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
 <!-- ==================== ASSISTANCE ==================== -->
 <div id="sec-assistance" class="section">
   <div class="page-title">Roadmap assistance</div>
-  <div class="page-sub">Sacs · Timeline · Itinéraires</div>
+  <div class="page-sub">Sacs · Plan de consommation · Timeline · Itinéraires</div>
   <div class="sec-tabs">
     <button class="sec-tab active" onclick="showSubsecAssist('sacs')">Mes sacs</button>
+    <button class="sec-tab" onclick="showSubsecAssist('plan-conso')">Plan de consommation</button>
     <button class="sec-tab" onclick="showSubsecAssist('timeline')">Timeline</button>
     <button class="sec-tab" onclick="showSubsecAssist('itineraires')">Itinéraires</button>
   </div>
   <div id="assist-sacs" class="subsec active">
     <div id="assist-bags-content"></div>
+  </div>
+  <div id="assist-plan-conso" class="subsec">
+    <div id="assist-plan-conso-content"></div>
   </div>
   <div id="assist-timeline" class="subsec">
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
@@ -866,13 +870,130 @@ function showSection(id){
 
 function showSubsecAssist(id){
   document.querySelectorAll('#sec-assistance .subsec').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('#sec-assistance .sec-tab').forEach((b,i)=>b.classList.toggle('active',['sacs','timeline','itineraires'][i]===id));
+  document.querySelectorAll('#sec-assistance .sec-tab').forEach((b,i)=>b.classList.toggle('active',['sacs','plan-conso','timeline','itineraires'][i]===id));
   const target=document.getElementById('assist-'+id);
   if(target)target.classList.add('active');
   if(id==='sacs')renderAssistanceBags();
+  if(id==='plan-conso')renderPlanConso();
   if(id==='timeline')renderTimeline();
   if(id==='itineraires')renderItineraires();
 }
+
+function renderPlanConso(){
+  const el = document.getElementById('assist-plan-conso-content');
+  if(!el) return;
+  if(!gpxLoaded||!SEGS.length){
+    el.innerHTML='<div style="padding:2rem;text-align:center;color:var(--text3);font-size:13px">Importez un GPX et planifiez la nutrition pour voir le plan de consommation.</div>';
+    return;
+  }
+  const typeEmoji={gel:'⚡',barre:'🍫',puree:'🥣',boisson:'💧',bonbon:'🍬',patisserie:'🧇',fruit:'🍑',sel:'🧂',autre:'📦'};
+
+  // Calcule l'heure de départ pour les heures estimées
+  const startH = parseTime(document.getElementById('a-start')?.value||'06:00');
+  let cumTime = 0;
+
+  // Vue complète segment par segment
+  let html = `<div style="margin-bottom:16px;padding:10px 14px;background:var(--bg3);border-radius:var(--r);border-left:3px solid var(--accent);font-size:12px;color:var(--text2)">
+    Ce plan indique <strong style="color:var(--text1)">quoi manger et à quel moment</strong> sur chaque segment.
+    Les horaires sont estimés depuis votre heure de départ.
+    Mettez-le en photo sur votre téléphone avant le départ.
+  </div>`;
+
+  SEGS.forEach((seg, i) => {
+    const st = segTime(seg);
+    const plan = NUTRI_PLAN[i]||[];
+    const segStartH = cumTime;
+    const segEndH = cumTime + st;
+    cumTime += st;
+
+    const rv0 = RAVITOS[i], rv1 = RAVITOS[i+1];
+    const isEmpty = plan.length === 0;
+    const isAssistNext = rv1?.assist;
+
+    // Calcul nutrition du segment
+    const currG=plan.reduce((a,e)=>{const p=PRODUCTS.find(x=>x.id===e.id);return a+(p?p.gluc*e.qty:0);},0);
+    const currP=plan.reduce((a,e)=>{const p=PRODUCTS.find(x=>x.id===e.id);return a+(p?p.prot*e.qty:0);},0);
+    const currS=plan.reduce((a,e)=>{const p=PRODUCTS.find(x=>x.id===e.id);return a+(p?p.sod*e.qty:0);},0);
+
+    // Répartition temporelle : on étale les produits sur la durée du segment
+    // Logique : 1 prise toutes les ~30-45min, sauf gels/bonbons plus fréquents
+    const totalItems = plan.reduce((a,e)=>a+e.qty,0);
+    const intervalMin = totalItems > 0 ? Math.max(20, Math.round(st*60/totalItems)) : 0;
+
+    // Construire la liste des prises dans l'ordre
+    const prises = [];
+    let minuteOffset = 15; // première prise 15min après le départ du segment
+    plan.forEach(e => {
+      const pr = PRODUCTS.find(p=>p.id===e.id);
+      if(!pr) return;
+      const isFrequent = ['gel','bonbon','sel'].includes(pr.type);
+      const interval = isFrequent ? Math.max(20, intervalMin*0.8) : intervalMin;
+      for(let q=0; q<e.qty; q++){
+        const atMin = Math.min(minuteOffset + q*interval, st*60 - 5);
+        const atH = startH + segStartH + atMin/60;
+        prises.push({pr, atMin: Math.round(atMin), atH});
+        minuteOffset += interval;
+      }
+    });
+    prises.sort((a,b)=>a.atMin-b.atMin);
+
+    html += `<div style="margin-bottom:12px;border:1px solid var(--border);border-radius:var(--rl);overflow:hidden">
+      <!-- Header segment -->
+      <div style="padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-weight:700;font-size:14px;color:var(--text1);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.3px">${seg.from} → ${seg.to}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">
+            ${seg.k1-seg.k0}km · +${seg.dp}m · ${hms(st)} ·
+            Départ estimé <strong style="color:var(--text2)">${addH(startH, segStartH)}</strong> → Arrivée <strong style="color:var(--text2)">${addH(startH, segEndH)}</strong>
+            ${isAssistNext?` · <span style="color:var(--warn)">▲ Assistance à ${rv1.name}</span>`:''}
+          </div>
+        </div>
+        ${isEmpty
+          ? '<span style="font-size:11px;color:var(--danger);padding:3px 8px;background:rgba(232,68,90,.1);border-radius:20px;border:1px solid rgba(232,68,90,.3)">Rien de planifié</span>'
+          : `<div style="display:flex;gap:8px;font-size:11px">
+              <span style="color:var(--accent)">G:${currG}g</span>
+              <span style="color:#0099ff">P:${currP}g</span>
+              <span style="color:var(--warn)">Na:${currS}mg</span>
+              <span style="color:var(--text3)">${totalItems} unité(s)</span>
+            </div>`
+        }
+      </div>
+
+      <!-- Contenu -->
+      <div style="padding:12px 14px;background:var(--bg2)">
+        ${isEmpty
+          ? `<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px 0">Aucun produit planifié pour ce segment. <button onclick="showSection('nutrition');showSubsecNutri('plan')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:12px;padding:0">Planifier →</button></div>`
+          : `<div style="display:flex;flex-direction:column;gap:6px">
+              ${prises.map((prise, pi) => {
+                const emoji = typeEmoji[prise.pr.type]||'📦';
+                const isFirst = pi===0;
+                const isLast = pi===prises.length-1;
+                const timing = isFirst ? 'Dès le départ du segment'
+                  : prise.atMin < 30 ? `+${prise.atMin}min`
+                  : prise.atMin < 60 ? `+${prise.atMin}min (${Math.round(prise.atMin/60*10)/10}h)`
+                  : `+${Math.floor(prise.atMin/60)}h${String(prise.atMin%60).padStart(2,'0')}`;
+                const timeColor = isFirst?'var(--accent)':isLast?'var(--warn)':'var(--text3)';
+                return `<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border)">
+                  <span style="font-size:18px;flex-shrink:0">${emoji}</span>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:13px;font-weight:500;color:var(--text1)">${prise.pr.name}</div>
+                    <div style="font-size:11px;color:var(--text3)">${prise.pr.unit} · G:${prise.pr.gluc}g P:${prise.pr.prot}g Na:${prise.pr.sod}mg</div>
+                  </div>
+                  <div style="text-align:right;flex-shrink:0">
+                    <div style="font-size:11px;font-weight:600;color:${timeColor}">${timing}</div>
+                    <div style="font-size:10px;color:var(--text3)">${addH(startH, segStartH + prise.atMin/60)}</div>
+                  </div>
+                </div>`;
+              }).join('')}
+            </div>`
+        }
+      </div>
+    </div>`;
+  });
+
+  el.innerHTML = html;
+}
+
 function showSubsec(parent,id){
   document.querySelectorAll(`#sec-${parent} .subsec`).forEach(s=>s.classList.remove('active'));
   document.querySelectorAll(`#sec-${parent} .sec-tab`).forEach((b,i)=>{
@@ -1909,10 +2030,66 @@ function renderAssistanceBags(){
         </div>
 
         <!-- Bilan nutritionnel du sac -->
-        <div style="border-top:1px solid var(--border);padding-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <div style="border-top:1px solid var(--border);padding-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
           ${miniBagNutri('Glucides',nutri.g,'g','#00d4aa')}
           ${miniBagNutri('Protéines',nutri.p,'g','#0099ff')}
           ${miniBagNutri('Sodium',nutri.s,'mg','#f5a623')}
+        </div>
+
+        <!-- Récap consommation par segment -->
+        <div style="border-top:1px solid var(--border);padding-top:12px">
+          <div style="font-size:11px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Ce que je mange — segment par segment</div>
+          ${bag.segIndices.map(si=>{
+            const seg=SEGS[si];
+            const plan=NUTRI_PLAN[si]||[];
+            const st=segTime(seg);
+            const rv1=RAVITOS[si+1];
+            const totalItems=plan.reduce((a,e)=>a+e.qty,0);
+            const segG=plan.reduce((a,e)=>{const p=PRODUCTS.find(x=>x.id===e.id);return a+(p?p.gluc*e.qty:0);},0);
+            if(!plan.length) return `<div style="padding:8px 10px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);margin-bottom:6px;font-size:12px;color:var(--text3)">
+              <span style="font-weight:500;color:var(--text2)">${seg.from} → ${seg.to}</span> · ${seg.k1-seg.k0}km · ${hms(st)} · <span style="color:var(--danger)">Rien de planifié</span>
+            </div>`;
+
+            // Construire les prises avec horaires
+            const startH2=parseTime(document.getElementById('a-start')?.value||'06:00');
+            let cumSeg=0;
+            for(let x=0;x<si;x++) cumSeg+=segTime(SEGS[x]);
+            const intervalMin=totalItems>0?Math.max(20,Math.round(st*60/totalItems)):0;
+            const prises=[];
+            let offset=15;
+            plan.forEach(e=>{
+              const pr=PRODUCTS.find(p=>p.id===e.id);
+              if(!pr)return;
+              const isFrequent=['gel','bonbon','sel'].includes(pr.type);
+              const intv=isFrequent?Math.max(20,intervalMin*0.8):intervalMin;
+              for(let q=0;q<e.qty;q++){
+                const atMin=Math.min(offset+q*intv,st*60-5);
+                prises.push({pr,atMin:Math.round(atMin),absH:startH2+cumSeg+atMin/60});
+                offset+=intv;
+              }
+            });
+            prises.sort((a,b)=>a.atMin-b.atMin);
+
+            return `<div style="padding:10px 12px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);margin-bottom:6px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px">
+                <div style="font-weight:600;font-size:12px;color:var(--text1)">${seg.from} → ${seg.to}</div>
+                <div style="font-size:11px;color:var(--text3)">${seg.k1-seg.k0}km · ${hms(st)} · G:${segG}g · ${totalItems} unité(s)${rv1?.assist?` · <span style="color:var(--warn)">▲ Assistance</span>`:''}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:5px">
+                ${prises.map((p2,pi)=>{
+                  const emoji=typeEmoji[p2.pr.type]||'📦';
+                  const isFirst=pi===0;
+                  const timing=isFirst?'Dès le départ':p2.atMin<60?`+${p2.atMin}min`:`+${Math.floor(p2.atMin/60)}h${String(p2.atMin%60).padStart(2,'0')}`;
+                  return `<div style="display:flex;align-items:center;gap:8px;font-size:12px">
+                    <span style="font-size:16px;flex-shrink:0">${emoji}</span>
+                    <span style="flex:1;color:var(--text1)">${p2.pr.name}</span>
+                    <span style="color:${isFirst?'var(--accent)':'var(--text3)'};font-size:11px;flex-shrink:0">${timing}</span>
+                    <span style="color:var(--text3);font-size:10px;flex-shrink:0">${addH(startH2,cumSeg+p2.atMin/60)}</span>
+                  </div>`;
+                }).join('')}
+              </div>
+            </div>`;
+          }).join('')}
         </div>`}
       </div>
 
