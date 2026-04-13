@@ -760,13 +760,16 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
 <!-- ==================== ASSISTANCE ==================== -->
 <div id="sec-assistance" class="section">
   <div class="page-title">Roadmap assistance</div>
-  <div class="page-sub">Timeline · Fenêtres d'attente · Check-lists · Itinéraires</div>
+  <div class="page-sub">Sacs · Timeline · Itinéraires</div>
   <div class="sec-tabs">
-    <button class="sec-tab active" onclick="showSubsec('assist','timeline')">Timeline</button>
-    <button class="sec-tab" onclick="showSubsec('assist','checklist')">Check-lists sacs</button>
-    <button class="sec-tab" onclick="showSubsec('assist','itineraires')">Itinéraires</button>
+    <button class="sec-tab active" onclick="showSubsecAssist('sacs')">Mes sacs</button>
+    <button class="sec-tab" onclick="showSubsecAssist('timeline')">Timeline</button>
+    <button class="sec-tab" onclick="showSubsecAssist('itineraires')">Itinéraires</button>
   </div>
-  <div id="assist-timeline" class="subsec active">
+  <div id="assist-sacs" class="subsec active">
+    <div id="assist-bags-content"></div>
+  </div>
+  <div id="assist-timeline" class="subsec">
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
       <div><label class="lbl">Heure départ</label><input type="time" id="a-start" value="06:00" style="width:120px" onchange="renderTimeline()"/></div>
       <div><label class="lbl">Marge optimiste (min)</label><input type="number" id="a-mopt" value="20" style="width:80px" onchange="renderTimeline()"/></div>
@@ -774,9 +777,6 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
       <div><label class="lbl">Alerte avant (min)</label><input type="number" id="a-alert" value="45" style="width:80px" onchange="renderTimeline()"/></div>
     </div>
     <div id="timeline-content"></div>
-  </div>
-  <div id="assist-checklist" class="subsec">
-    <div id="checklist-content"></div>
   </div>
   <div id="assist-itineraires" class="subsec">
     <div id="itin-content"></div>
@@ -861,7 +861,17 @@ function showSection(id){
   if(id==='matching')renderMatching();
   if(id==='perf')renderPerf();
   if(id==='nutrition')showSubsecNutri('plan');
-  if(id==='assistance')renderTimeline();
+  if(id==='assistance')showSubsecAssist('sacs');
+}
+
+function showSubsecAssist(id){
+  document.querySelectorAll('#sec-assistance .subsec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('#sec-assistance .sec-tab').forEach((b,i)=>b.classList.toggle('active',['sacs','timeline','itineraires'][i]===id));
+  const target=document.getElementById('assist-'+id);
+  if(target)target.classList.add('active');
+  if(id==='sacs')renderAssistanceBags();
+  if(id==='timeline')renderTimeline();
+  if(id==='itineraires')renderItineraires();
 }
 function showSubsec(parent,id){
   document.querySelectorAll(`#sec-${parent} .subsec`).forEach(s=>s.classList.remove('active'));
@@ -1548,12 +1558,12 @@ function renderNutriPlan(){
     const currG=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.gluc*e.qty:0);},0);
     const currP=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.prot*e.qty:0);},0);
     const currS=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.sod*e.qty:0);},0);
-    const pctG=Math.min(100,needG>0?Math.round(currG/needG*100):0);
-    const pctP=Math.min(100,needP>0?Math.round(currP/needP*100):0);
-    const pctS=Math.min(100,needS>0?Math.round(currS/needS*100):0);
-    const cG=pctG>=100?'#00d4aa':pctG>=70?'#f5a623':'#e8445a';
-    const cP=pctP>=100?'#00d4aa':pctP>=70?'#f5a623':'#e8445a';
-    const cS=pctS>=100?'#00d4aa':pctS>=70?'#f5a623':'#e8445a';
+    const pctG=needG>0?Math.round(currG/needG*100):0;
+    const pctP=needP>0?Math.round(currP/needP*100):0;
+    const pctS=needS>0?Math.round(currS/needS*100):0;
+    const cG=pctG>120?'#e8445a':pctG>=100?'#00d4aa':pctG>=70?'#f5a623':'#e8445a';
+    const cP=pctP>120?'#e8445a':pctP>=100?'#00d4aa':pctP>=70?'#f5a623':'#e8445a';
+    const cS=pctS>120?'#e8445a':pctS>=100?'#00d4aa':pctS>=70?'#f5a623':'#e8445a';
     const rv1=RAVITOS[i+1];
     const segPct=Math.round((pctG+pctP+pctS)/3);
     const segColor=segPct>=100?'#00d4aa':segPct>=60?'#f5a623':'#e8445a';
@@ -1581,30 +1591,34 @@ function renderNutriPlan(){
 }
 
 function miniGauge(label, curr, need, unit){
-  const pct=Math.min(100,need>0?Math.round(curr/need*100):0);
-  const c=pct>=100?'#00d4aa':pct>=60?'#f5a623':'#e8445a';
+  const pct = need>0 ? Math.round(curr/need*100) : 0;
+  const c = pct>120?'#e8445a':pct>=100?'#00d4aa':pct>=60?'#f5a623':'#e8445a';
   return `<div>
     <div style="display:flex;justify-content:space-between;margin-bottom:4px">
       <span style="font-size:11px;color:var(--text3)">${label}</span>
-      <span style="font-size:11px;font-weight:600;color:${c}">${curr}/${need}${unit}</span>
+      <span style="font-size:11px;font-weight:600;color:${c}">${curr}/${need}${unit} <span style="opacity:.7">(${pct}%)</span></span>
     </div>
     <div style="height:4px;background:var(--bg4);border-radius:2px;overflow:hidden">
-      <div style="height:100%;width:${pct}%;background:${c};border-radius:2px"></div>
+      <div style="height:100%;width:${Math.min(100,pct)}%;background:${c};border-radius:2px"></div>
+      ${pct>100?`<div style="height:100%;width:${Math.min(30,pct-100)/130*100}%;background:${c};opacity:0.6;border-radius:2px;display:inline-block"></div>`:''}
     </div>
   </div>`;
 }
 
 function gaugeBlock(label, short, curr, need, unit, color){
-  const pct = Math.min(100, need>0?Math.round(curr/need*100):0);
+  const pct = need>0 ? Math.round(curr/need*100) : 0;
+  const barPct = Math.min(pct, 130); // barre plafonnée à 130% visuellement
+  const overColor = pct > 120 ? '#e8445a' : pct > 100 ? '#0099ff' : color;
   return `<div style="background:var(--bg3);border-radius:var(--r);padding:10px 12px">
     <div style="display:flex;justify-content:space-between;margin-bottom:6px">
       <span style="font-size:11px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">${label}</span>
-      <span style="font-size:11px;font-weight:600;color:${color}">${pct}%</span>
+      <span style="font-size:11px;font-weight:600;color:${overColor}">${pct}%</span>
     </div>
-    <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:5px">
-      <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width .3s"></div>
+    <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:5px;position:relative">
+      <div style="height:100%;width:${Math.min(100,barPct)}%;background:${color};border-radius:3px;transition:width .3s"></div>
+      ${pct>100?`<div style="height:100%;width:${Math.min(30,pct-100)*100/130}%;background:${overColor};border-radius:3px;position:absolute;left:${Math.min(100,barPct)}%;top:0;opacity:0.7"></div>`:''}
     </div>
-    <div style="font-size:11px;color:var(--text2)">${curr}<span style="color:var(--text3)">/${need}${unit}</span></div>
+    <div style="font-size:11px;color:var(--text2)">${curr}<span style="color:var(--text3)">/${need}${unit}</span>${pct>100?`<span style="color:${overColor};margin-left:4px;font-size:10px">+${curr-need}${unit}</span>`:''}</div>
   </div>`;
 }
 
@@ -1622,49 +1636,110 @@ function renderSegProducts(i){
   }).join('');
 }
 
-// Modal sélecteur de produits
+// Modal sélecteur de produits — avec jauges en temps réel
 let pickerSegIdx = null;
+
 function openProductPicker(segIdx){
   pickerSegIdx = segIdx;
+  renderPickerModal();
+}
+
+function renderPickerModal(){
+  const segIdx = pickerSegIdx;
+  if(segIdx === null) return;
   const seg = SEGS[segIdx];
   const st = segTime(seg);
-  const g = +document.getElementById('n-gluc')?.value||55;
+  const gRef=+document.getElementById('n-gluc')?.value||55;
+  const pRef=+document.getElementById('n-prot')?.value||5;
+  const sRef=+document.getElementById('n-sod')?.value||1500;
+  const needG=Math.round(gRef*st), needP=Math.round(pRef*st), needS=Math.round(sRef*st);
   const plan = NUTRI_PLAN[segIdx]||[];
-  const currG = plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.gluc*e.qty:0);},0);
-  const needG = Math.round(g*st);
+  const currG=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.gluc*e.qty:0);},0);
+  const currP=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.prot*e.qty:0);},0);
+  const currS=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.sod*e.qty:0);},0);
 
-  let html = `<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px" id="product-picker-overlay" onclick="if(event.target.id==='product-picker-overlay')closeProductPicker()">
-    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);width:100%;max-width:560px;max-height:80vh;overflow-y:auto;padding:20px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <div style="font-family:var(--font-display);font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Ajouter des produits</div>
-        <button onclick="closeProductPicker()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px">✕</button>
+  const typeEmoji={gel:'⚡',barre:'🍫',puree:'🥣',boisson:'💧',bonbon:'🍬',patisserie:'🧇',fruit:'🍑',sel:'🧂',autre:'📦'};
+
+  const existing = document.getElementById('product-picker-overlay');
+
+  const html = `<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px" id="product-picker-overlay" onclick="if(event.target.id==='product-picker-overlay')closeProductPicker()">
+    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);width:100%;max-width:580px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden">
+
+      <!-- Header -->
+      <div style="padding:16px 20px 12px;border-bottom:1px solid var(--border);flex-shrink:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+          <div style="font-family:var(--font-display);font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.3px">${seg.from} → ${seg.to}</div>
+          <button onclick="closeProductPicker()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;line-height:1;padding:0">✕</button>
+        </div>
+        <div style="font-size:11px;color:var(--text3)">${seg.k1-seg.k0}km · +${seg.dp}m · ${hms(st)}</div>
       </div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:14px">${seg.from} → ${seg.to} · Besoin glucides : ${needG}g · Déjà planifié : ${currG}g</div>
-      <div style="display:grid;gap:8px">
+
+      <!-- Jauges live -->
+      <div style="padding:12px 20px;background:var(--bg3);border-bottom:1px solid var(--border);flex-shrink:0" id="picker-gauges">
+        ${pickerGaugeRow(currG,needG,'g','Glucides','#00d4aa')}
+        ${pickerGaugeRow(currP,needP,'g','Protéines','#0099ff')}
+        ${pickerGaugeRow(currS,needS,'mg','Sodium','#f5a623')}
+      </div>
+
+      <!-- Produits sélectionnés -->
+      <div style="padding:8px 20px;background:var(--bg3);border-bottom:1px solid var(--border);min-height:36px;flex-shrink:0" id="picker-selected-chips">
+        ${renderPickerChips(plan)}
+      </div>
+
+      <!-- Liste produits -->
+      <div style="overflow-y:auto;flex:1;padding:12px 20px;display:grid;gap:7px">
         ${PRODUCTS.map(pr=>{
-          const inPlan = plan.find(e=>e.id===pr.id);
-          const qty = inPlan?inPlan.qty:0;
-          const typeEmoji={gel:'⚡',barre:'🍫',puree:'🥣',boisson:'💧',bonbon:'🍬',patisserie:'🧇',fruit:'🍑',sel:'🧂',autre:'📦'}[pr.type]||'📦';
-          return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--r);border:1px solid ${qty>0?'var(--accent)':'var(--border)'}">
-            <div style="width:32px;height:32px;background:var(--bg4);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${typeEmoji}</div>
+          const inPlan=plan.find(e=>e.id===pr.id);
+          const qty=inPlan?inPlan.qty:0;
+          const emoji=typeEmoji[pr.type]||'📦';
+          return `<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border-radius:var(--r);border:1px solid ${qty>0?'var(--accent)':'var(--border)'}">
+            <div style="width:34px;height:34px;background:var(--bg4);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${emoji}</div>
             <div style="flex:1;min-width:0">
-              <div style="font-weight:500;font-size:13px;color:var(--text1)">${pr.name}</div>
-              <div style="font-size:11px;color:var(--text3)">${pr.unit} · G:${pr.gluc}g P:${pr.prot}g Na:${pr.sod}mg</div>
+              <div style="font-weight:500;font-size:13px;color:var(--text1)">${pr.name} <span style="font-size:10px;color:var(--text3)">${pr.brand}</span></div>
+              <div style="font-size:11px;color:var(--text3)">G:${pr.gluc}g · P:${pr.prot}g · Na:${pr.sod}mg</div>
             </div>
-            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-              <button onclick="changeQty(${segIdx},${pr.id},-1)" style="width:26px;height:26px;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;color:var(--text1);cursor:pointer;font-size:14px">−</button>
-              <span style="min-width:20px;text-align:center;font-weight:600;color:${qty>0?'var(--accent)':'var(--text3)'}" id="picker-qty-${pr.id}">${qty}</span>
-              <button onclick="changeQty(${segIdx},${pr.id},1)" style="width:26px;height:26px;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;color:var(--text1);cursor:pointer;font-size:14px">+</button>
+            <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+              <button onclick="changeQty(${segIdx},${pr.id},-1)" style="width:28px;height:28px;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;color:var(--text1);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">−</button>
+              <span style="min-width:22px;text-align:center;font-weight:700;font-size:14px;color:${qty>0?'var(--accent)':'var(--text3)'}" id="picker-qty-${pr.id}">${qty}</span>
+              <button onclick="changeQty(${segIdx},${pr.id},1)" style="width:28px;height:28px;background:${qty>0?'var(--accent)':'var(--bg4)'};border:1px solid ${qty>0?'var(--accent)':'var(--border2)'};border-radius:6px;color:${qty>0?'#000':'var(--text1)'};cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">+</button>
             </div>
           </div>`;
         }).join('')}
       </div>
-      <div style="margin-top:14px;text-align:right">
-        <button class="btn btn-accent" onclick="closeProductPicker()">Valider</button>
+
+      <!-- Footer -->
+      <div style="padding:12px 20px;border-top:1px solid var(--border);flex-shrink:0;text-align:right">
+        <button class="btn btn-accent" onclick="closeProductPicker()">Valider ce segment</button>
       </div>
     </div>
   </div>`;
-  document.body.insertAdjacentHTML('beforeend', html);
+
+  if(existing) existing.outerHTML = html;
+  else document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function pickerGaugeRow(curr, need, unit, label, color){
+  const pct = need>0?Math.round(curr/need*100):0;
+  const c = pct>120?'#e8445a':pct>=100?color:pct>=60?'#f5a623':'#e8445a';
+  return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+    <span style="font-size:11px;color:var(--text3);width:60px;flex-shrink:0;font-family:var(--font-display);text-transform:uppercase;letter-spacing:.3px">${label}</span>
+    <div style="flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden">
+      <div style="height:100%;width:${Math.min(100,pct)}%;background:${c};border-radius:3px;transition:width .25s"></div>
+    </div>
+    <span style="font-size:11px;font-weight:600;color:${c};min-width:70px;text-align:right">${curr}/${need}${unit} <span style="opacity:.6">${pct}%</span></span>
+  </div>`;
+}
+
+function renderPickerChips(plan){
+  if(!plan.length) return '<span style="font-size:11px;color:var(--text3)">Aucun produit — ajoutez des produits ci-dessous</span>';
+  return plan.map(e=>{
+    const pr=PRODUCTS.find(p=>p.id===e.id);
+    if(!pr) return '';
+    return `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--bg4);border:1px solid var(--accent);border-radius:20px;padding:2px 8px 2px 6px;font-size:11px;margin:2px">
+      <span style="color:var(--text2)">${pr.name}</span>
+      <span style="color:var(--accent);font-weight:700">×${e.qty}</span>
+    </span>`;
+  }).join('');
 }
 
 function closeProductPicker(){
@@ -1682,17 +1757,207 @@ function changeQty(segIdx, productId, delta){
   } else if(delta>0){
     plan.push({id:productId, qty:1});
   }
-  const el = document.getElementById(`picker-qty-${productId}`);
-  const entry = plan.find(e=>e.id===productId);
-  if(el){el.textContent = entry?entry.qty:0; el.style.color = entry?'var(--accent)':'var(--text3)';}
-  const segEl = document.getElementById(`nutri-products-seg-${segIdx}`);
-  if(segEl) segEl.innerHTML = renderSegProducts(segIdx);
+  // Mise à jour temps réel dans le picker
+  const qtyEl=document.getElementById(`picker-qty-${productId}`);
+  if(qtyEl){
+    const entry=plan.find(e=>e.id===productId);
+    qtyEl.textContent=entry?entry.qty:0;
+    qtyEl.style.color=entry?'var(--accent)':'var(--text3)';
+  }
+  // Refresh jauges et chips dans le picker sans tout reconstruire
+  const gRef=+document.getElementById('n-gluc')?.value||55;
+  const pRef=+document.getElementById('n-prot')?.value||5;
+  const sRef=+document.getElementById('n-sod')?.value||1500;
+  const seg=SEGS[segIdx]; const st=segTime(seg);
+  const needG=Math.round(gRef*st),needP=Math.round(pRef*st),needS=Math.round(sRef*st);
+  const cG=plan.reduce((a,e)=>{const p=PRODUCTS.find(x=>x.id===e.id);return a+(p?p.gluc*e.qty:0);},0);
+  const cP=plan.reduce((a,e)=>{const p=PRODUCTS.find(x=>x.id===e.id);return a+(p?p.prot*e.qty:0);},0);
+  const cS=plan.reduce((a,e)=>{const p=PRODUCTS.find(x=>x.id===e.id);return a+(p?p.sod*e.qty:0);},0);
+  const gEl=document.getElementById('picker-gauges');
+  if(gEl) gEl.innerHTML=pickerGaugeRow(cG,needG,'g','Glucides','#00d4aa')+pickerGaugeRow(cP,needP,'g','Protéines','#0099ff')+pickerGaugeRow(cS,needS,'mg','Sodium','#f5a623');
+  const chEl=document.getElementById('picker-selected-chips');
+  if(chEl) chEl.innerHTML=renderPickerChips(plan);
+  // Update segment dans le fond
+  const segEl=document.getElementById(`nutri-products-seg-${segIdx}`);
+  if(segEl) segEl.innerHTML=renderSegProducts(segIdx);
 }
 
 function removeProduct(segIdx, productId){
   if(!NUTRI_PLAN[segIdx]) return;
-  NUTRI_PLAN[segIdx] = NUTRI_PLAN[segIdx].filter(e=>e.id!==productId);
+  NUTRI_PLAN[segIdx]=NUTRI_PLAN[segIdx].filter(e=>e.id!==productId);
   renderNutriPlan();
+}
+
+// ===== SACS DYNAMIQUES DEPUIS PLAN NUTRITIONNEL =====
+function computeBags(){
+  // Regroupe les segments par tronçon entre deux points d'assistance (ou départ/arrivée)
+  if(!SEGS.length) return [];
+  const bags = [];
+  let bagSegs = [];
+  let bagLabel = 'Sac de départ';
+  let bagFrom = RAVITOS[0]?.name || 'Départ';
+  let bagType = 'depart';
+
+  SEGS.forEach((seg, i) => {
+    bagSegs.push(i);
+    const nextRavito = RAVITOS[i+1];
+    // Si le prochain ravito est une assistance OU c'est le dernier segment → fermer le sac
+    if(nextRavito && (nextRavito.assist || i===SEGS.length-1)){
+      bags.push({
+        label: bagLabel,
+        from: bagFrom,
+        to: nextRavito.name,
+        toLoc: nextRavito.loc||nextRavito.name,
+        type: bagType,
+        segIndices: [...bagSegs],
+        isLastBag: i===SEGS.length-1
+      });
+      bagSegs = [];
+      bagLabel = `Sac assistance — ${nextRavito.name}`;
+      bagFrom = nextRavito.name;
+      bagType = 'assistance';
+    }
+  });
+  // Si des segments restants (pas terminé sur une assistance)
+  if(bagSegs.length){
+    bags.push({label:bagLabel, from:bagFrom, to:'Arrivée', toLoc:'Arrivée', type:bagType, segIndices:[...bagSegs], isLastBag:true});
+  }
+  return bags;
+}
+
+function getBagProducts(segIndices){
+  // Agrège tous les produits de tous les segments du sac
+  const totals = {};
+  segIndices.forEach(i=>{
+    (NUTRI_PLAN[i]||[]).forEach(e=>{
+      if(!totals[e.id]) totals[e.id]={id:e.id,qty:0};
+      totals[e.id].qty += e.qty;
+    });
+  });
+  return Object.values(totals).filter(e=>e.qty>0);
+}
+
+function getBagNutrition(segIndices){
+  const products = getBagProducts(segIndices);
+  const g=products.reduce((a,e)=>{const p=PRODUCTS.find(x=>x.id===e.id);return a+(p?p.gluc*e.qty:0);},0);
+  const p=products.reduce((a,e)=>{const x=PRODUCTS.find(y=>y.id===e.id);return a+(x?x.prot*e.qty:0);},0);
+  const s=products.reduce((a,e)=>{const x=PRODUCTS.find(y=>y.id===e.id);return a+(x?x.sod*e.qty:0);},0);
+  return {g,p,s};
+}
+
+function renderAssistanceBags(){
+  const el = document.getElementById('assist-bags-content');
+  if(!el) return;
+  if(!gpxLoaded||!SEGS.length){
+    el.innerHTML='<div style="padding:2rem;text-align:center;color:var(--text3);font-size:13px">Importez un GPX, définissez vos ravitos et planifiez la nutrition pour voir les sacs.</div>';
+    return;
+  }
+  const bags = computeBags();
+  if(!bags.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:1rem 0">Aucun sac à préparer.</div>';return;}
+
+  const typeEmoji={gel:'⚡',barre:'🍫',puree:'🥣',boisson:'💧',bonbon:'🍬',patisserie:'🧇',fruit:'🍑',sel:'🧂',autre:'📦'};
+
+  let html = '';
+  bags.forEach((bag, bi)=>{
+    const products = getBagProducts(bag.segIndices);
+    const nutri = getBagNutrition(bag.segIndices);
+    const isEmpty = products.length===0;
+    const segsDist = bag.segIndices.reduce((a,i)=>a+(SEGS[i].k1-SEGS[i].k0),0);
+    const segsTime = bag.segIndices.reduce((a,i)=>a+segTime(SEGS[i]),0);
+    const isDepart = bag.type==='depart';
+    const accentCol = isDepart ? '#00d4aa' : '#f5a623';
+
+    html += `<div style="margin-bottom:16px">
+      <!-- Étiquette sac -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:3px;height:40px;background:${accentCol};border-radius:2px;flex-shrink:0"></div>
+        <div>
+          <div style="font-family:var(--font-display);font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:${accentCol}">${bag.label}</div>
+          <div style="font-size:11px;color:var(--text3)">${bag.from} → ${bag.to} · ${segsDist}km · ${hms(segsTime)}</div>
+        </div>
+      </div>
+
+      <!-- Visuel sac -->
+      <div style="background:var(--bg2);border:1px solid ${isEmpty?'var(--border)':accentCol+'44'};border-radius:var(--rl);padding:14px 16px">
+
+        ${isEmpty ? `<div style="text-align:center;padding:1rem;color:var(--text3);font-size:13px">
+          <div style="font-size:32px;margin-bottom:8px">🎒</div>
+          Aucun produit planifié pour ce tronçon.<br>
+          <button class="btn btn-sm btn-accent" style="margin-top:8px" onclick="showSection('nutrition');showSubsecNutri('plan')">Planifier la nutrition →</button>
+        </div>` : `
+
+        <!-- Illustration sac -->
+        <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px">
+          <div style="font-size:40px;flex-shrink:0">🎒</div>
+          <div style="flex:1;min-width:200px">
+            <div style="font-size:12px;font-weight:500;color:var(--text1);margin-bottom:8px">${products.length} produit(s) · ${nutri.g}g glucides · ${nutri.p}g protéines · ${nutri.s}mg sodium</div>
+            <!-- Produits en grille visuelle -->
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              ${products.map(e=>{
+                const pr=PRODUCTS.find(p=>p.id===e.id);
+                if(!pr) return '';
+                const emoji=typeEmoji[pr.type]||'📦';
+                return Array.from({length:e.qty}).map(()=>`
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:6px 8px;min-width:54px;text-align:center">
+                    <span style="font-size:20px">${emoji}</span>
+                    <span style="font-size:9px;color:var(--text2);line-height:1.2;max-width:54px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${pr.name.split(' ').slice(0,2).join(' ')}</span>
+                    <span style="font-size:9px;color:var(--accent)">G:${pr.gluc}g</span>
+                  </div>`).join('');
+              }).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- Bilan nutritionnel du sac -->
+        <div style="border-top:1px solid var(--border);padding-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          ${miniBagNutri('Glucides',nutri.g,'g','#00d4aa')}
+          ${miniBagNutri('Protéines',nutri.p,'g','#0099ff')}
+          ${miniBagNutri('Sodium',nutri.s,'mg','#f5a623')}
+        </div>`}
+      </div>
+
+      ${bi<bags.length-1?`<div style="display:flex;align-items:center;gap:8px;margin:10px 0;padding-left:16px">
+        <div style="width:1px;height:24px;background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--text3)">→ Course jusqu'au prochain point d'assistance</span>
+      </div>`:''}
+    </div>`;
+  });
+
+  // Récap liste de courses complète
+  const allProducts = {};
+  SEGS.forEach((_,i)=>{
+    (NUTRI_PLAN[i]||[]).forEach(e=>{
+      if(!allProducts[e.id]) allProducts[e.id]={id:e.id,qty:0};
+      allProducts[e.id].qty+=e.qty;
+    });
+  });
+  const totalList = Object.values(allProducts).filter(e=>e.qty>0);
+  if(totalList.length){
+    html += `<div class="card" style="margin-top:8px;border-color:rgba(127,119,221,.4)">
+      <div style="font-family:var(--font-display);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-bottom:10px;color:#7f77dd">Liste de courses complète</div>
+      <div style="display:grid;gap:6px">
+        ${totalList.map(e=>{
+          const pr=PRODUCTS.find(p=>p.id===e.id);
+          if(!pr) return '';
+          const emoji=typeEmoji[pr.type]||'📦';
+          return `<div style="display:flex;align-items:center;gap:8px;font-size:13px">
+            <span style="font-size:16px">${emoji}</span>
+            <span style="color:var(--text1);flex:1">${pr.name}</span>
+            <span style="font-weight:700;color:var(--accent);font-family:var(--font-display);font-size:15px">×${e.qty}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function miniBagNutri(label, val, unit, color){
+  return `<div style="background:var(--bg3);border-radius:6px;padding:8px 10px;text-align:center">
+    <div style="font-size:10px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px">${label}</div>
+    <div style="font-size:16px;font-weight:700;font-family:var(--font-display);color:${color}">${val}<span style="font-size:10px;color:var(--text3);margin-left:1px">${unit}</span></div>
+  </div>`;
 }
 
 // Base produits
