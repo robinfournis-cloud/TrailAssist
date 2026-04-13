@@ -656,18 +656,105 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
 <!-- ==================== NUTRITION ==================== -->
 <div id="sec-nutrition" class="section">
   <div class="page-title">Plan nutritionnel</div>
-  <div class="page-sub">Calculé sur la durée de course estimée · Par segment</div>
-  <div class="card">
-    <div class="card-head"><span class="card-title">Références nutritionnelles</span></div>
-    <div class="form-grid">
-      <div class="form-row"><label class="lbl">Glucides (g/h)</label><input type="number" id="n-gluc" value="55" onchange="renderNutri()"/></div>
-      <div class="form-row"><label class="lbl">Protéines (g/h)</label><input type="number" id="n-prot" value="5" onchange="renderNutri()"/></div>
-      <div class="form-row"><label class="lbl">Sodium (g/h)</label><input type="number" id="n-sod" value="1.5" step="0.1" onchange="renderNutri()"/></div>
-      <div class="form-row"><label class="lbl">Eau (mL/h)</label><input type="number" id="n-eau" value="700" onchange="renderNutri()"/></div>
+  <div class="page-sub">Base produits · Planification par étape · Jauges d'apport</div>
+
+  <div class="sec-tabs">
+    <button class="sec-tab active" onclick="showSubsecNutri('plan')">Plan par étape</button>
+    <button class="sec-tab" onclick="showSubsecNutri('produits')">Base produits</button>
+    <button class="sec-tab" onclick="showSubsecNutri('refs')">Références & totaux</button>
+  </div>
+
+  <!-- PLAN PAR ÉTAPE -->
+  <div id="nutri-plan" class="subsec active">
+    <div id="nutri-plan-content"></div>
+  </div>
+
+  <!-- BASE PRODUITS -->
+  <div id="nutri-produits" class="subsec">
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Mes produits</span>
+        <button class="btn btn-sm btn-accent" onclick="openAddProduct()">+ Ajouter un produit</button>
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Saisissez les apports pour 1 unité (1 gel, 1 barre, 1 flasque...) tels qu'indiqués sur l'emballage.</div>
+      <div id="products-list"></div>
+    </div>
+
+    <!-- Formulaire ajout produit -->
+    <div id="add-product-form" style="display:none">
+      <div class="card" style="border-color:var(--accent)">
+        <div class="card-head">
+          <span class="card-title">Nouveau produit</span>
+          <button class="btn btn-sm" onclick="closeAddProduct()">✕ Fermer</button>
+        </div>
+
+        <!-- Scan photo via Claude API -->
+        <div style="background:var(--bg3);border-radius:var(--r);padding:12px 14px;margin-bottom:16px;border-left:2px solid var(--accent)">
+          <div style="font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-display);margin-bottom:6px">Scan étiquette nutritionnelle</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Prenez une photo de l'étiquette — l'IA lit les valeurs et les pré-remplit automatiquement.</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input type="file" id="product-photo" accept="image/*" capture="environment" style="display:none" onchange="scanProductPhoto(this)"/>
+            <button class="btn btn-sm" onclick="document.getElementById('product-photo').click()" style="display:flex;align-items:center;gap:6px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Prendre une photo
+            </button>
+            <button class="btn btn-sm" onclick="document.getElementById('product-photo').click()" style="display:flex;align-items:center;gap:6px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Importer une image
+            </button>
+            <div id="scan-status" style="font-size:12px;color:var(--text3)"></div>
+          </div>
+          <div id="scan-preview" style="margin-top:10px;display:none">
+            <img id="scan-img" style="max-height:120px;border-radius:var(--r);border:1px solid var(--border2)" alt="photo produit"/>
+          </div>
+        </div>
+
+        <!-- Champs produit -->
+        <div class="form-grid">
+          <div class="form-row"><label class="lbl">Nom du produit</label><input type="text" id="p-name" placeholder="ex: Gel Baouw Mangue"/></div>
+          <div class="form-row"><label class="lbl">Marque</label><input type="text" id="p-brand" placeholder="ex: Baouw"/></div>
+          <div class="form-row"><label class="lbl">Type</label>
+            <select id="p-type">
+              <option value="gel">Gel énergétique</option>
+              <option value="barre">Barre</option>
+              <option value="puree">Purée / compote</option>
+              <option value="boisson">Boisson effort</option>
+              <option value="bonbon">Bonbon / gomme</option>
+              <option value="patisserie">Gaufre / pâtisserie</option>
+              <option value="fruit">Fruit séché / pâte de fruit</option>
+              <option value="sel">Gélule sel</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+          <div class="form-row"><label class="lbl">Unité (1 gel, 1 barre...)</label><input type="text" id="p-unit" placeholder="ex: 1 gel (37g)"/></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px">
+          <div class="form-row"><label class="lbl">Glucides (g / unité)</label><input type="number" id="p-gluc" placeholder="30" step="0.5"/></div>
+          <div class="form-row"><label class="lbl">Protéines (g / unité)</label><input type="number" id="p-prot" placeholder="0" step="0.5"/></div>
+          <div class="form-row"><label class="lbl">Sodium (mg / unité)</label><input type="number" id="p-sod" placeholder="60" step="1"/></div>
+        </div>
+        <div class="form-row"><label class="lbl">Notes</label><input type="text" id="p-notes" placeholder="ex: Privilégier en début de course"/></div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+          <button class="btn btn-sm" onclick="closeAddProduct()">Annuler</button>
+          <button class="btn btn-sm btn-accent" onclick="saveProduct()">Enregistrer le produit</button>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="metric-grid" id="nutri-totals"></div>
-  <div id="nutri-segments"></div>
+
+  <!-- RÉFÉRENCES -->
+  <div id="nutri-refs" class="subsec">
+    <div class="card">
+      <div class="card-head"><span class="card-title">Besoins de référence par heure</span></div>
+      <div class="form-grid">
+        <div class="form-row"><label class="lbl">Glucides (g/h)</label><input type="number" id="n-gluc" value="55" onchange="renderNutriPlan()"/></div>
+        <div class="form-row"><label class="lbl">Protéines (g/h)</label><input type="number" id="n-prot" value="5" onchange="renderNutriPlan()"/></div>
+        <div class="form-row"><label class="lbl">Sodium (mg/h)</label><input type="number" id="n-sod" value="1500" onchange="renderNutriPlan()"/></div>
+      </div>
+      <div style="font-size:12px;color:var(--text3)">Référence : 50-60g glucides/h · 5g protéines/h · 1000-1500mg sodium/h</div>
+    </div>
+    <div class="metric-grid" id="nutri-totals"></div>
+  </div>
 </div>
 
 <!-- ==================== ASSISTANCE ==================== -->
@@ -773,7 +860,7 @@ function showSection(id){
   document.getElementById('sec-'+id).classList.add('active');
   if(id==='matching')renderMatching();
   if(id==='perf')renderPerf();
-  if(id==='nutrition')renderNutri();
+  if(id==='nutrition')showSubsecNutri('plan');
   if(id==='assistance')renderTimeline();
 }
 function showSubsec(parent,id){
@@ -1376,34 +1463,346 @@ function renderPlanCalque(){
 }
 
 // ===== NUTRITION =====
-function renderNutri(){
-  const t=+document.getElementById('p-chrono').value||16;
-  const g=+document.getElementById('n-gluc').value||55;
-  const p=+document.getElementById('n-prot').value||5;
-  const s=+document.getElementById('n-sod').value||1.5;
-  const e=+document.getElementById('n-eau').value||700;
-  document.getElementById('nutri-totals').innerHTML=`
+
+// Base de données produits
+let PRODUCTS = [
+  {id:1,name:'Gel Baouw Mangue',brand:'Baouw',type:'gel',unit:'1 gel (37g)',gluc:25,prot:3,sod:55,notes:'Facile à avaler'},
+  {id:2,name:'Purée Décathlon',brand:'Décathlon',type:'puree',unit:'1 sachet (90g)',gluc:20,prot:0,sod:40,notes:'Début de course'},
+  {id:3,name:'Barre Overstims',brand:'Overstims',type:'barre',unit:'1 barre (65g)',gluc:35,prot:8,sod:80,notes:'Solide, segments longs'},
+  {id:4,name:'Gaufre Loffet',brand:'Loffet',type:'patisserie',unit:'1 gaufre (35g)',gluc:16,prot:4,sod:30,notes:'Début de course'},
+  {id:5,name:'Bonbon Ta',brand:'Ta Energy',type:'bonbon',unit:'1 sachet (30g)',gluc:20,prot:0,sod:15,notes:'En-cas rapide'},
+  {id:6,name:'Pâte de fruit',brand:'Artisanal',type:'fruit',unit:'1 pièce (20g)',gluc:20,prot:0,sod:5,notes:'Mâchable'},
+  {id:7,name:'Flasque boisson effort',brand:'Générique',type:'boisson',unit:'1 flasque (250ml)',gluc:30,prot:0,sod:200,notes:'Hydratation + énergie'},
+  {id:8,name:'Gélule sel',brand:'Générique',type:'sel',unit:'1 gélule',gluc:0,prot:0,sod:400,notes:'Toutes les 2h'},
+];
+
+// Plan nutritionnel par segment : {segIdx: [{productId, qty}]}
+let NUTRI_PLAN = {};
+
+function showSubsecNutri(id){
+  // Désactiver tous les sous-onglets nutrition
+  document.querySelectorAll('#sec-nutrition .sec-tab').forEach((b,i)=>{
+    b.classList.toggle('active',['plan','produits','refs'][i]===id);
+  });
+  document.querySelectorAll('#sec-nutrition .subsec').forEach(s=>s.classList.remove('active'));
+  const target = document.getElementById('nutri-'+id);
+  if(target) target.classList.add('active');
+  if(id==='plan') renderNutriPlan();
+  if(id==='produits') renderProductsList();
+  if(id==='refs') renderNutriRefs();
+}
+
+function renderNutri(){ renderNutriPlan(); }
+
+function renderNutriPlan(){
+  const el = document.getElementById('nutri-plan-content');
+  if(!el) return;
+  if(!gpxLoaded || !SEGS.length){
+    el.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--text3);font-size:13px">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.3;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+      Importez un GPX et définissez vos ravitos pour planifier la nutrition par étape.
+    </div>`;
+    return;
+  }
+  const gRef = +document.getElementById('n-gluc')?.value || 55;
+  const pRef = +document.getElementById('n-prot')?.value || 5;
+  const sRef = +document.getElementById('n-sod')?.value || 1500;
+
+  // Calcul totaux
+  let totalNeedG=0, totalNeedP=0, totalNeedS=0;
+  let totalCurrG=0, totalCurrP=0, totalCurrS=0;
+  SEGS.forEach((seg,i)=>{
+    const st=segTime(seg);
+    totalNeedG+=Math.round(gRef*st); totalNeedP+=Math.round(pRef*st); totalNeedS+=Math.round(sRef*st);
+    const plan=NUTRI_PLAN[i]||[];
+    totalCurrG+=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.gluc*e.qty:0);},0);
+    totalCurrP+=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.prot*e.qty:0);},0);
+    totalCurrS+=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.sod*e.qty:0);},0);
+  });
+
+  const pctTG=Math.min(100,totalNeedG>0?Math.round(totalCurrG/totalNeedG*100):0);
+  const pctTP=Math.min(100,totalNeedP>0?Math.round(totalCurrP/totalNeedP*100):0);
+  const pctTS=Math.min(100,totalNeedS>0?Math.round(totalCurrS/totalNeedS*100):0);
+  const globalPct=Math.round((pctTG+pctTP+pctTS)/3);
+  const globalColor=globalPct>=100?'#00d4aa':globalPct>=60?'#f5a623':'#e8445a';
+
+  let html = `<div class="card" style="margin-bottom:16px;border-color:${globalColor}44">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-family:var(--font-display);font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Progression totale du plan</div>
+      <span style="font-size:18px;font-weight:700;font-family:var(--font-display);color:${globalColor}">${globalPct}%</span>
+    </div>
+    <div style="height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;margin-bottom:12px">
+      <div style="height:100%;width:${globalPct}%;background:${globalColor};border-radius:4px;transition:width .4s"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      ${miniGauge('Glucides',totalCurrG,totalNeedG,'g')}
+      ${miniGauge('Protéines',totalCurrP,totalNeedP,'g')}
+      ${miniGauge('Sodium',totalCurrS,totalNeedS,'mg')}
+    </div>
+  </div>`;
+
+  SEGS.forEach((seg, i) => {
+    const st = segTime(seg);
+    const needG=Math.round(gRef*st), needP=Math.round(pRef*st), needS=Math.round(sRef*st);
+    const plan = NUTRI_PLAN[i] || [];
+    const currG=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.gluc*e.qty:0);},0);
+    const currP=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.prot*e.qty:0);},0);
+    const currS=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.sod*e.qty:0);},0);
+    const pctG=Math.min(100,needG>0?Math.round(currG/needG*100):0);
+    const pctP=Math.min(100,needP>0?Math.round(currP/needP*100):0);
+    const pctS=Math.min(100,needS>0?Math.round(currS/needS*100):0);
+    const cG=pctG>=100?'#00d4aa':pctG>=70?'#f5a623':'#e8445a';
+    const cP=pctP>=100?'#00d4aa':pctP>=70?'#f5a623':'#e8445a';
+    const cS=pctS>=100?'#00d4aa':pctS>=70?'#f5a623':'#e8445a';
+    const rv1=RAVITOS[i+1];
+    const segPct=Math.round((pctG+pctP+pctS)/3);
+    const segColor=segPct>=100?'#00d4aa':segPct>=60?'#f5a623':'#e8445a';
+
+    html += `<div class="card" style="margin-bottom:10px;border-left:3px solid ${segColor}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-weight:600;font-size:14px;color:var(--text1)">${seg.from} → ${seg.to}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">${seg.k1-seg.k0} km · +${seg.dp}m · ${hms(st)}${rv1&&rv1.assist?' · <span style="color:var(--warn)">▲ Assistance</span>':''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;font-weight:700;font-family:var(--font-display);color:${segColor}">${segPct}%</span>
+          <button class="btn btn-sm btn-accent" onclick="openProductPicker(${i})">+ Produits</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px">
+        ${gaugeBlock('Glucides','G',currG,needG,'g',cG)}
+        ${gaugeBlock('Protéines','P',currP,needP,'g',cP)}
+        ${gaugeBlock('Sodium','S',currS,needS,'mg',cS)}
+      </div>
+      <div id="nutri-products-seg-${i}" style="min-height:24px">${renderSegProducts(i)}</div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function miniGauge(label, curr, need, unit){
+  const pct=Math.min(100,need>0?Math.round(curr/need*100):0);
+  const c=pct>=100?'#00d4aa':pct>=60?'#f5a623':'#e8445a';
+  return `<div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+      <span style="font-size:11px;color:var(--text3)">${label}</span>
+      <span style="font-size:11px;font-weight:600;color:${c}">${curr}/${need}${unit}</span>
+    </div>
+    <div style="height:4px;background:var(--bg4);border-radius:2px;overflow:hidden">
+      <div style="height:100%;width:${pct}%;background:${c};border-radius:2px"></div>
+    </div>
+  </div>`;
+}
+
+function gaugeBlock(label, short, curr, need, unit, color){
+  const pct = Math.min(100, need>0?Math.round(curr/need*100):0);
+  return `<div style="background:var(--bg3);border-radius:var(--r);padding:10px 12px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+      <span style="font-size:11px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">${label}</span>
+      <span style="font-size:11px;font-weight:600;color:${color}">${pct}%</span>
+    </div>
+    <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:5px">
+      <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width .3s"></div>
+    </div>
+    <div style="font-size:11px;color:var(--text2)">${curr}<span style="color:var(--text3)">/${need}${unit}</span></div>
+  </div>`;
+}
+
+function renderSegProducts(i){
+  const plan = NUTRI_PLAN[i] || [];
+  if(!plan.length) return '<div style="font-size:12px;color:var(--text3)">Aucun produit sélectionné</div>';
+  return plan.map(e => {
+    const pr = PRODUCTS.find(p=>p.id===e.id);
+    if(!pr) return '';
+    return `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:3px 8px 3px 6px;font-size:12px;margin:2px">
+      <span style="color:var(--text2)">${pr.name}</span>
+      <span style="color:var(--accent);font-weight:600">×${e.qty}</span>
+      <button onclick="removeProduct(${i},${e.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0;margin-left:2px;line-height:1">✕</button>
+    </span>`;
+  }).join('');
+}
+
+// Modal sélecteur de produits
+let pickerSegIdx = null;
+function openProductPicker(segIdx){
+  pickerSegIdx = segIdx;
+  const seg = SEGS[segIdx];
+  const st = segTime(seg);
+  const g = +document.getElementById('n-gluc')?.value||55;
+  const plan = NUTRI_PLAN[segIdx]||[];
+  const currG = plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.gluc*e.qty:0);},0);
+  const needG = Math.round(g*st);
+
+  let html = `<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px" id="product-picker-overlay" onclick="if(event.target.id==='product-picker-overlay')closeProductPicker()">
+    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);width:100%;max-width:560px;max-height:80vh;overflow-y:auto;padding:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Ajouter des produits</div>
+        <button onclick="closeProductPicker()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px">✕</button>
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:14px">${seg.from} → ${seg.to} · Besoin glucides : ${needG}g · Déjà planifié : ${currG}g</div>
+      <div style="display:grid;gap:8px">
+        ${PRODUCTS.map(pr=>{
+          const inPlan = plan.find(e=>e.id===pr.id);
+          const qty = inPlan?inPlan.qty:0;
+          const typeEmoji={gel:'⚡',barre:'🍫',puree:'🥣',boisson:'💧',bonbon:'🍬',patisserie:'🧇',fruit:'🍑',sel:'🧂',autre:'📦'}[pr.type]||'📦';
+          return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--r);border:1px solid ${qty>0?'var(--accent)':'var(--border)'}">
+            <div style="width:32px;height:32px;background:var(--bg4);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${typeEmoji}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:500;font-size:13px;color:var(--text1)">${pr.name}</div>
+              <div style="font-size:11px;color:var(--text3)">${pr.unit} · G:${pr.gluc}g P:${pr.prot}g Na:${pr.sod}mg</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+              <button onclick="changeQty(${segIdx},${pr.id},-1)" style="width:26px;height:26px;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;color:var(--text1);cursor:pointer;font-size:14px">−</button>
+              <span style="min-width:20px;text-align:center;font-weight:600;color:${qty>0?'var(--accent)':'var(--text3)'}" id="picker-qty-${pr.id}">${qty}</span>
+              <button onclick="changeQty(${segIdx},${pr.id},1)" style="width:26px;height:26px;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;color:var(--text1);cursor:pointer;font-size:14px">+</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="margin-top:14px;text-align:right">
+        <button class="btn btn-accent" onclick="closeProductPicker()">Valider</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closeProductPicker(){
+  document.getElementById('product-picker-overlay')?.remove();
+  renderNutriPlan();
+}
+
+function changeQty(segIdx, productId, delta){
+  if(!NUTRI_PLAN[segIdx]) NUTRI_PLAN[segIdx]=[];
+  const plan = NUTRI_PLAN[segIdx];
+  const idx = plan.findIndex(e=>e.id===productId);
+  if(idx>=0){
+    plan[idx].qty = Math.max(0, plan[idx].qty+delta);
+    if(plan[idx].qty===0) plan.splice(idx,1);
+  } else if(delta>0){
+    plan.push({id:productId, qty:1});
+  }
+  const el = document.getElementById(`picker-qty-${productId}`);
+  const entry = plan.find(e=>e.id===productId);
+  if(el){el.textContent = entry?entry.qty:0; el.style.color = entry?'var(--accent)':'var(--text3)';}
+  const segEl = document.getElementById(`nutri-products-seg-${segIdx}`);
+  if(segEl) segEl.innerHTML = renderSegProducts(segIdx);
+}
+
+function removeProduct(segIdx, productId){
+  if(!NUTRI_PLAN[segIdx]) return;
+  NUTRI_PLAN[segIdx] = NUTRI_PLAN[segIdx].filter(e=>e.id!==productId);
+  renderNutriPlan();
+}
+
+// Base produits
+function renderProductsList(){
+  const el = document.getElementById('products-list');
+  if(!el) return;
+  const types={gel:'⚡ Gel',barre:'🍫 Barre',puree:'🥣 Purée',boisson:'💧 Boisson',bonbon:'🍬 Bonbon',patisserie:'🧇 Gaufre',fruit:'🍑 Fruit',sel:'🧂 Sel',autre:'📦 Autre'};
+  el.innerHTML = PRODUCTS.map(pr=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="width:36px;height:36px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${(types[pr.type]||'📦').split(' ')[0]}</div>
+      <div style="flex:1">
+        <div style="font-weight:500;color:var(--text1)">${pr.name} <span style="font-size:11px;font-weight:400;color:var(--text3)">${pr.brand}</span></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px">${pr.unit} · G:${pr.gluc}g · P:${pr.prot}g · Na:${pr.sod}mg${pr.notes?' · '+pr.notes:''}</div>
+      </div>
+      <button onclick="deleteProduct(${pr.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:4px">✕</button>
+    </div>`).join('');
+}
+
+function deleteProduct(id){
+  PRODUCTS = PRODUCTS.filter(p=>p.id!==id);
+  renderProductsList();
+}
+
+function openAddProduct(){
+  document.getElementById('add-product-form').style.display='block';
+  document.getElementById('add-product-form').scrollIntoView({behavior:'smooth'});
+}
+function closeAddProduct(){
+  document.getElementById('add-product-form').style.display='none';
+  ['p-name','p-brand','p-unit','p-gluc','p-prot','p-sod','p-notes'].forEach(id=>{
+    const el=document.getElementById(id); if(el)el.value='';
+  });
+  document.getElementById('scan-status').textContent='';
+  document.getElementById('scan-preview').style.display='none';
+}
+
+function saveProduct(){
+  const name = document.getElementById('p-name')?.value?.trim();
+  if(!name){alert('Saisissez un nom.');return;}
+  PRODUCTS.push({
+    id: Date.now(),
+    name,
+    brand: document.getElementById('p-brand')?.value||'',
+    type: document.getElementById('p-type')?.value||'autre',
+    unit: document.getElementById('p-unit')?.value||'1 unité',
+    gluc: +document.getElementById('p-gluc')?.value||0,
+    prot: +document.getElementById('p-prot')?.value||0,
+    sod: +document.getElementById('p-sod')?.value||0,
+    notes: document.getElementById('p-notes')?.value||''
+  });
+  closeAddProduct();
+  renderProductsList();
+}
+
+// Scan photo via Claude API
+async function scanProductPhoto(input){
+  const file = input.files[0];
+  if(!file) return;
+  const status = document.getElementById('scan-status');
+  const preview = document.getElementById('scan-preview');
+  const img = document.getElementById('scan-img');
+  status.innerHTML = '<span style="color:var(--warn)">Analyse en cours...</span>';
+  // Preview
+  const reader = new FileReader();
+  reader.onload = e => { img.src=e.target.result; preview.style.display='block'; };
+  reader.readAsDataURL(file);
+  // Encode en base64 pour l'API
+  const b64 = await new Promise(res=>{
+    const r=new FileReader();r.onload=e=>res(e.target.result.split(',')[1]);r.readAsDataURL(file);
+  });
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:400,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:file.type,data:b64}},
+          {type:'text',text:'Lis cette étiquette nutritionnelle. Réponds UNIQUEMENT en JSON avec ces champs exacts (valeurs pour 1 portion/unité comme indiqué sur l\'emballage) : {"nom":"","marque":"","glucides_g":0,"proteines_g":0,"sodium_mg":0,"unite":"ex: 1 gel 37g"}. Rien d\'autre que le JSON.'}
+        ]}]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content?.[0]?.text||'';
+    const json = JSON.parse(text.replace(/```json|```/g,'').trim());
+    if(document.getElementById('p-name')&&!document.getElementById('p-name').value) document.getElementById('p-name').value=json.nom||'';
+    if(document.getElementById('p-brand')&&!document.getElementById('p-brand').value) document.getElementById('p-brand').value=json.marque||'';
+    if(document.getElementById('p-gluc')) document.getElementById('p-gluc').value=json.glucides_g||0;
+    if(document.getElementById('p-prot')) document.getElementById('p-prot').value=json.proteines_g||0;
+    if(document.getElementById('p-sod')) document.getElementById('p-sod').value=json.sodium_mg||0;
+    if(document.getElementById('p-unit')&&!document.getElementById('p-unit').value) document.getElementById('p-unit').value=json.unite||'';
+    status.innerHTML = '<span style="color:var(--accent)">✓ Valeurs détectées — vérifiez et ajustez si besoin</span>';
+  } catch(e){
+    status.innerHTML = '<span style="color:var(--danger)">Impossible de lire l\'étiquette — saisissez manuellement</span>';
+  }
+}
+
+function renderNutriRefs(){
+  const t = +document.getElementById('p-chrono')?.value||16;
+  const g = +document.getElementById('n-gluc')?.value||55;
+  const p = +document.getElementById('n-prot')?.value||5;
+  const s = +document.getElementById('n-sod')?.value||1500;
+  const el = document.getElementById('nutri-totals');
+  if(!el) return;
+  el.innerHTML=`
     <div class="metric"><div class="metric-label">Glucides totaux</div><div class="metric-val">${Math.round(g*t)}<span class="metric-unit">g</span></div></div>
     <div class="metric"><div class="metric-label">Protéines totales</div><div class="metric-val">${Math.round(p*t)}<span class="metric-unit">g</span></div></div>
-    <div class="metric"><div class="metric-label">Sodium total</div><div class="metric-val">${(s*t).toFixed(1)}<span class="metric-unit">g</span></div></div>
-    <div class="metric"><div class="metric-label">Hydratation</div><div class="metric-val">${(e*t/1000).toFixed(1)}<span class="metric-unit">L</span></div></div>`;
-  let html='<div class="card"><div class="card-head"><span class="card-title">Plan par segment</span></div>';
-  let prev=RAVITOS[0];
-  RAVITOS.slice(1).forEach((rv,i)=>{
-    const seg=SEGS[i];const st=segTime(seg);
-    html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)${i===RAVITOS.length-2?';border-bottom:none':''}">
-      <div><div style="font-weight:500;color:var(--text1);font-size:13px">${prev.name} → ${rv.name} <span style="font-size:11px;color:var(--text3)">(${hms(st)})</span></div></div>
-      <div style="display:flex;gap:16px;font-size:12px">
-        <span style="color:var(--text3)">Glucides <strong style="color:var(--text1)">${Math.round(g*st)}g</strong></span>
-        <span style="color:var(--text3)">Protéines <strong style="color:var(--text1)">${Math.round(p*st)}g</strong></span>
-        <span style="color:var(--text3)">Sodium <strong style="color:var(--text1)">${(s*st).toFixed(1)}g</strong></span>
-        <span style="color:var(--text3)">Eau <strong style="color:var(--text1)">${(e*st/1000).toFixed(1)}L</strong></span>
-        ${rv.assist?'<span class="badge badge-green">Assist.</span>':''}
-      </div></div>`;
-    prev=rv;
-  });
-  html+='</div>';
-  document.getElementById('nutri-segments').innerHTML=html;
+    <div class="metric"><div class="metric-label">Sodium total</div><div class="metric-val">${Math.round(s*t)}<span class="metric-unit">mg</span></div></div>
+    <div class="metric"><div class="metric-label">Durée course</div><div class="metric-val">${hms(t)}</div></div>`;
 }
 
 // ===== ASSISTANCE =====
