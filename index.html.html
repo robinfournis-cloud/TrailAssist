@@ -52,7 +52,6 @@ html,body{height:100%;background:var(--bg0);color:var(--text1);font-family:var(-
 .nav-tab{display:flex;align-items:center;gap:8px;padding:0 18px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;letter-spacing:.2px}
 .nav-tab:hover{color:var(--text1)}
 .nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.nav-tab.active span[style*="background:var(--bg4)"]{background:var(--accent)!important;color:#000!important}
 .nav-tab svg{opacity:.7}
 .nav-tab.active svg{opacity:1}
 .nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
@@ -224,27 +223,21 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
   </a>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showSection('gpx')">
-      <span style="font-size:9px;font-weight:700;background:var(--accent);color:#000;border-radius:4px;padding:1px 5px;font-family:var(--font-display);letter-spacing:.3px;flex-shrink:0">1</span>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Course GPX
     </button>
     <button class="nav-tab" onclick="showSection('database')">
-      <span style="font-size:9px;font-weight:700;background:var(--bg4);color:var(--text3);border-radius:4px;padding:1px 5px;font-family:var(--font-display);letter-spacing:.3px;flex-shrink:0">2</span>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Base coureurs
     </button>
     <button class="nav-tab" onclick="showSection('matching')">
-      <span style="font-size:9px;font-weight:700;background:var(--bg4);color:var(--text3);border-radius:4px;padding:1px 5px;font-family:var(--font-display);letter-spacing:.3px;flex-shrink:0">3</span>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Matching
     </button>
     <button class="nav-tab" onclick="showSection('perf')">
-      <span style="font-size:9px;font-weight:700;background:var(--bg4);color:var(--text3);border-radius:4px;padding:1px 5px;font-family:var(--font-display);letter-spacing:.3px;flex-shrink:0">4</span>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparatif perf
     </button>
     <button class="nav-tab" onclick="showSection('nutrition')">
-      <span style="font-size:9px;font-weight:700;background:var(--bg4);color:var(--text3);border-radius:4px;padding:1px 5px;font-family:var(--font-display);letter-spacing:.3px;flex-shrink:0">5</span>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>Nutrition
     </button>
     <button class="nav-tab" onclick="showSection('assistance')">
-      <span style="font-size:9px;font-weight:700;background:var(--bg4);color:var(--text3);border-radius:4px;padding:1px 5px;font-family:var(--font-display);letter-spacing:.3px;flex-shrink:0">6</span>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>Assistance
     </button>
   </div>
@@ -343,7 +336,7 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
         <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:12px;height:2px;background:var(--accent);display:inline-block;border-radius:1px"></span>Profil GPX</span>
         <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></span>Ravito</span>
         <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:8px solid var(--warn);display:inline-block"></span>Assistance</span>
-        <a href="#" id="gpx-maps-link" target="_blank" style="margin-left:auto;font-size:11px;color:var(--accent);text-decoration:none;border:1px solid rgba(0,212,170,0.3);border-radius:5px;padding:3px 10px;display:none">Voir sur OpenStreetMap →</a>
+        <a href="#" id="gpx-maps-link" target="_blank" style="margin-left:auto;font-size:11px;color:var(--accent);text-decoration:none;border:1px solid rgba(0,212,170,0.3);border-radius:5px;padding:3px 10px;display:none">Voir sur Google Maps →</a>
       </div>
     </div>
 
@@ -356,8 +349,40 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
       <div id="ravito-editor-gpx"></div>
     </div>
 
-    <div style="padding:10px 14px;background:var(--bg3);border-radius:var(--r);border-left:3px solid var(--accent2);font-size:12px;color:var(--text2);margin-top:4px">
-      ✓ GPX et ravitos définis — passez à l'onglet <strong style="color:var(--text1)">2 · Base coureurs</strong> puis <strong style="color:var(--text1)">3 · Matching</strong> pour sélectionner votre coureur de référence et générer votre tableau de passage dans <strong style="color:var(--text1)">4 · Comparatif perf</strong>.
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Paramètres coureur</span>
+      </div>
+      <div class="form-grid">
+        <div class="form-row"><label class="lbl">Index UTMB</label><input type="number" id="p-idx" value="650" onchange="updateGpxStats()"/></div>
+        <div class="form-row"><label class="lbl">Chrono objectif (h)</label><input type="number" id="p-chrono" value="16" step="0.25" onchange="updateGpxStats()"/></div>
+        <div class="form-row"><label class="lbl">Heure de départ</label><input type="time" id="p-start" value="06:00"/></div>
+        <div class="form-row">
+          <label class="lbl">Force montée (1–5) · <span id="climb-out">3.5</span></label>
+          <input type="range" min="1" max="5" step="0.5" value="3.5" oninput="document.getElementById('climb-out').textContent=this.value;updateGpxStats()" style="width:100%;accent-color:var(--accent)"/>
+        </div>
+        <div class="form-row">
+          <label class="lbl">Force descente (1–5) · <span id="desc-out">3</span></label>
+          <input type="range" min="1" max="5" step="0.5" value="3" oninput="document.getElementById('desc-out').textContent=this.value;updateGpxStats()" style="width:100%;accent-color:var(--accent)"/>
+        </div>
+        <div class="form-row"><label class="lbl">Scénario</label>
+          <select id="p-scen" onchange="updateGpxStats()">
+            <option value="nom">Nominal</option>
+            <option value="opt">Optimiste</option>
+            <option value="pes">Pessimiste</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Tableau de passage</span></div>
+      <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead><tr><th>Point</th><th>Km</th><th>Alt</th><th>D+</th><th>D-</th><th>Passage</th><th>Tps seg</th><th>Allure</th><th>Assistance</th></tr></thead>
+        <tbody id="passage-tbody"></tbody>
+      </table>
+      </div>
     </div>
   </div>
 </div>
@@ -588,7 +613,6 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
     <button class="sec-tab" onclick="showSubsec('perf','superposition')">Superposition</button>
     <button class="sec-tab" onclick="showSubsec('perf','terrain')">Par terrain</button>
     <button class="sec-tab" onclick="showSubsec('perf','plan')">Plan calqué</button>
-    <button class="sec-tab" onclick="showSubsec('perf','passage')">🎯 Mon plan de course</button>
   </div>
   <div id="perf-allures" class="subsec active">
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
@@ -627,74 +651,15 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
     </div>
     <div id="plan-calque-content"></div>
   </div>
-
-  <!-- MON PLAN DE COURSE -->
-  <div id="perf-passage" class="subsec">
-    <div style="padding:10px 14px;background:var(--bg3);border-radius:var(--r);border-left:3px solid var(--accent);font-size:12px;color:var(--text2);margin-bottom:14px">
-      Sélectionnez un coureur de référence depuis le matching — ses splits calqués sur votre tracé génèrent votre tableau de passage estimé.
-    </div>
-
-    <!-- Sélecteur coureur de référence -->
-    <div class="card" style="margin-bottom:12px">
-      <div class="card-head"><span class="card-title">Coureur de référence</span></div>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
-        <select id="passage-runner-ref" style="font-size:13px;padding:6px 12px;flex:1;min-width:180px" onchange="renderPassageTable()">
-          <option value="">— Choisir un coureur —</option>
-        </select>
-        <select id="passage-scen" style="font-size:12px;padding:6px 10px" onchange="renderPassageTable()">
-          <option value="nom">Nominal</option>
-          <option value="opt">Optimiste</option>
-          <option value="pes">Pessimiste</option>
-        </select>
-        <button class="btn btn-sm btn-accent" onclick="applyPassageToNutrition()">Appliquer aux chrono nutrition →</button>
-      </div>
-      <div class="form-grid">
-        <div class="form-row"><label class="lbl">Index UTMB</label><input type="number" id="p-idx" value="650" onchange="renderPassageTable()"/></div>
-        <div class="form-row"><label class="lbl">Heure de départ</label><input type="time" id="p-start" value="06:00" onchange="renderPassageTable()"/></div>
-        <div class="form-row">
-          <label class="lbl">Force montée (1–5) · <span id="climb-out">3.5</span></label>
-          <input type="range" min="1" max="5" step="0.5" value="3.5" id="climb-range" oninput="document.getElementById('climb-out').textContent=this.value;renderPassageTable()" style="width:100%;accent-color:var(--accent)"/>
-        </div>
-        <div class="form-row">
-          <label class="lbl">Force descente (1–5) · <span id="desc-out">3</span></label>
-          <input type="range" min="1" max="5" step="0.5" value="3" id="desc-range" oninput="document.getElementById('desc-out').textContent=this.value;renderPassageTable()" style="width:100%;accent-color:var(--accent)"/>
-        </div>
-        <div class="form-row"><label class="lbl">Chrono estimé (h)</label><input type="number" id="p-chrono" value="16" step="0.25" readonly style="opacity:.6" title="Calculé depuis les splits du coureur de référence"/></div>
-      </div>
-    </div>
-
-    <!-- Tableau de passage -->
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">Tableau de passage estimé</span>
-        <span id="passage-runner-label" style="font-size:11px;color:var(--text3)"></span>
-      </div>
-      <div style="overflow-x:auto">
-        <table class="tbl">
-          <thead><tr><th>Point</th><th>Km</th><th>Alt</th><th>D+</th><th>D-</th><th>Dist seg</th><th>Passage</th><th>Tps seg</th><th>Allure</th><th>Assistance</th></tr></thead>
-          <tbody id="passage-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- ==================== NUTRITION ==================== -->
 <div id="sec-nutrition" class="section">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
-    <div>
-      <div class="page-title">Plan nutritionnel</div>
-      <div class="page-sub">Base produits · Planification par étape · Jauges d'apport</div>
-    </div>
-    <button class="btn btn-sm" onclick="resetNutrition()" style="margin-top:4px;display:flex;align-items:center;gap:5px;color:var(--danger);border-color:rgba(232,68,90,.3)">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
-      Remettre à zéro
-    </button>
-  </div>
+  <div class="page-title">Plan nutritionnel</div>
+  <div class="page-sub">Base produits · Planification par étape · Jauges d'apport</div>
 
   <div class="sec-tabs">
     <button class="sec-tab active" onclick="showSubsecNutri('plan')">Plan par étape</button>
-    <button class="sec-tab" onclick="showSubsecNutri('mon-plan')">🎒 Mon plan coureur</button>
     <button class="sec-tab" onclick="showSubsecNutri('produits')">Base produits</button>
     <button class="sec-tab" onclick="showSubsecNutri('refs')">Références & totaux</button>
   </div>
@@ -702,14 +667,6 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
   <!-- PLAN PAR ÉTAPE -->
   <div id="nutri-plan" class="subsec active">
     <div id="nutri-plan-content"></div>
-  </div>
-
-  <!-- MON PLAN COUREUR -->
-  <div id="nutri-mon-plan" class="subsec">
-    <div style="padding:10px 14px;background:var(--bg3);border-radius:var(--r);border-left:3px solid var(--accent);font-size:12px;color:var(--text2);margin-bottom:14px">
-      Vue <strong style="color:var(--text1)">coureur uniquement</strong> — ce que vous emportez dans votre sac et ce que vous mangez segment par segment. À mettre en photo avant le départ.
-    </div>
-    <div id="nutri-mon-plan-content"></div>
   </div>
 
   <!-- BASE PRODUITS -->
@@ -793,9 +750,8 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
         <div class="form-row"><label class="lbl">Glucides (g/h)</label><input type="number" id="n-gluc" value="55" onchange="renderNutriPlan()"/></div>
         <div class="form-row"><label class="lbl">Protéines (g/h)</label><input type="number" id="n-prot" value="5" onchange="renderNutriPlan()"/></div>
         <div class="form-row"><label class="lbl">Sodium (mg/h)</label><input type="number" id="n-sod" value="1500" onchange="renderNutriPlan()"/></div>
-        <div class="form-row"><label class="lbl">Eau (mL/h)</label><input type="number" id="n-eau" value="700" onchange="renderNutriPlan()"/></div>
       </div>
-      <div style="font-size:12px;color:var(--text3)">Référence : 50-60g glucides/h · 5g protéines/h · 1000-1500mg sodium/h · 700mL eau/h</div>
+      <div style="font-size:12px;color:var(--text3)">Référence : 50-60g glucides/h · 5g protéines/h · 1000-1500mg sodium/h</div>
     </div>
     <div class="metric-grid" id="nutri-totals"></div>
   </div>
@@ -804,17 +760,18 @@ label.lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spac
 <!-- ==================== ASSISTANCE ==================== -->
 <div id="sec-assistance" class="section">
   <div class="page-title">Roadmap assistance</div>
-  <div class="page-sub">Sacs à préparer · Timeline · Itinéraires</div>
+  <div class="page-sub">Sacs · Plan de consommation · Timeline · Itinéraires</div>
   <div class="sec-tabs">
-    <button class="sec-tab active" onclick="showSubsecAssist('sacs')">Sacs assistance</button>
+    <button class="sec-tab active" onclick="showSubsecAssist('sacs')">Mes sacs</button>
+    <button class="sec-tab" onclick="showSubsecAssist('plan-conso')">Plan de consommation</button>
     <button class="sec-tab" onclick="showSubsecAssist('timeline')">Timeline</button>
     <button class="sec-tab" onclick="showSubsecAssist('itineraires')">Itinéraires</button>
   </div>
   <div id="assist-sacs" class="subsec active">
-    <div style="padding:10px 14px;background:var(--bg3);border-radius:var(--r);border-left:3px solid var(--warn);font-size:12px;color:var(--text2);margin-bottom:14px">
-      Vue <strong style="color:var(--text1)">assistance uniquement</strong> — contenu des sacs à préparer et apporter aux points d'assistance. Partagez cette vue avec votre équipe.
-    </div>
     <div id="assist-bags-content"></div>
+  </div>
+  <div id="assist-plan-conso" class="subsec">
+    <div id="assist-plan-conso-content"></div>
   </div>
   <div id="assist-timeline" class="subsec">
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
@@ -913,10 +870,11 @@ function showSection(id){
 
 function showSubsecAssist(id){
   document.querySelectorAll('#sec-assistance .subsec').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('#sec-assistance .sec-tab').forEach((b,i)=>b.classList.toggle('active',['sacs','timeline','itineraires'][i]===id));
+  document.querySelectorAll('#sec-assistance .sec-tab').forEach((b,i)=>b.classList.toggle('active',['sacs','plan-conso','timeline','itineraires'][i]===id));
   const target=document.getElementById('assist-'+id);
   if(target)target.classList.add('active');
   if(id==='sacs')renderAssistanceBags();
+  if(id==='plan-conso')renderPlanConso();
   if(id==='timeline')renderTimeline();
   if(id==='itineraires')renderItineraires();
 }
@@ -1039,10 +997,7 @@ function renderPlanConso(){
 function showSubsec(parent,id){
   document.querySelectorAll(`#sec-${parent} .subsec`).forEach(s=>s.classList.remove('active'));
   document.querySelectorAll(`#sec-${parent} .sec-tab`).forEach((b,i)=>{
-    const ids={
-      database:['sources','runners','add','roadmap'],
-      perf:['allures','superposition','terrain','plan','passage']
-    }[parent]||[];
+    const ids={database:['sources','runners','add','roadmap'],perf:['allures','superposition','terrain','plan'],assist:['timeline','checklist','itineraires']}[parent]||[];
     b.classList.toggle('active',ids[i]===id);
   });
   document.getElementById(`${parent}-${id}`)?.classList.add('active');
@@ -1050,7 +1005,8 @@ function showSubsec(parent,id){
   if(parent==='perf'&&id==='superposition')renderSuperposition();
   if(parent==='perf'&&id==='terrain')renderTerrain();
   if(parent==='perf'&&id==='plan')renderPlanCalque();
-  if(parent==='perf'&&id==='passage'){populatePassageRunnerSelect();renderPassageTable();}
+  if(parent==='assist'&&id==='checklist')renderChecklist();
+  if(parent==='assist'&&id==='itineraires')renderItineraires();
   if(parent==='database'&&id==='runners')renderRunnersList();
   if(parent==='database'&&id==='add')renderAddSegs();
 }
@@ -1061,6 +1017,14 @@ function parseH(s){if(!s)return 0;const m=s.match(/(\d+)h(\d+)?/);return m?+m[1]
 function addH(base,h){const t=base+h;const hh=Math.floor(t)%24;const mm=Math.round((t%1)*60);return`${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;}
 function parseTime(t){const[h,m]=t.split(':').map(Number);return h+m/60;}
 function totalDist(){return GPX_PTS.length?GPX_PTS[GPX_PTS.length-1].d:104.1;}
+function segTime(s){
+  const t=+document.getElementById('p-chrono')?.value||16;
+  const bl=t/totalDist();
+  const cs=+document.getElementById('climbS')?.value||3.5;
+  const ds=+document.getElementById('descS')?.value||3;
+  const cf=1+(0.3*(5-cs)/4);const df=1+(0.2*(5-ds)/4);
+  return((s.k1-s.k0)*bl+(s.dp/1000)*cf*0.8+(s.dm/1000)*df*0.25);
+}
 function getPaces(r,sc){const f=sc==='opt'?r.best/r.chrono:sc==='pes'?r.worst/r.chrono:1;return r.paces.map(p=>+(p*f).toFixed(2));}
 function matchScore(r){
   const myI=+document.getElementById('p-idx')?.value||650;
@@ -1186,16 +1150,13 @@ function onGpxLoaded(name,dist,dp,dm,npts){
   renderRavitoEditor();
   updateGpxStats();
   renderAltChart();
-  // Lien OpenStreetMap avec la bbox du tracé
+  // Lien Google Maps avec le point de départ
   if(GPX_RAW_COORDS.length){
-    const lats = GPX_RAW_COORDS.map(p=>p.lat);
-    const lons = GPX_RAW_COORDS.map(p=>p.lon);
-    const minLat=Math.min(...lats).toFixed(4), maxLat=Math.max(...lats).toFixed(4);
-    const minLon=Math.min(...lons).toFixed(4), maxLon=Math.max(...lons).toFixed(4);
-    const cLat=((+minLat+(+maxLat))/2).toFixed(4), cLon=((+minLon+(+maxLon))/2).toFixed(4);
+    const start = GPX_RAW_COORDS[0];
+    const end = GPX_RAW_COORDS[GPX_RAW_COORDS.length-1];
     const link = document.getElementById('gpx-maps-link');
     if(link){
-      link.href = `https://www.openstreetmap.org/?bbox=${minLon},${minLat},${maxLon},${maxLat}&layer=cyclemap`;
+      link.href = `https://www.google.com/maps/dir/${start.lat},${start.lon}/${end.lat},${end.lon}`;
       link.style.display = 'inline-flex';
     }
   }
@@ -1256,14 +1217,13 @@ function getEle(km){
 }
 function updateGpxStats(){
   if(!gpxLoaded)return;
-  const t=+document.getElementById('p-chrono')?.value||16;
+  const t=+document.getElementById('p-chrono').value||16;
   const td=totalDist();
   const pace=(t/td*60).toFixed(1);
-  const chronoEl=document.getElementById('gpx-chrono');
-  const paceEl=document.getElementById('gpx-pace');
-  if(chronoEl)chronoEl.innerHTML=hms(t);
-  if(paceEl)paceEl.innerHTML=`${pace}<span class="metric-unit">mn/km</span>`;
+  document.getElementById('gpx-chrono').innerHTML=`${hms(t)}`;
+  document.getElementById('gpx-pace').innerHTML=`${pace}<span class="metric-unit">mn/km</span>`;
   computeSegs();
+  renderPassage();
   renderAltChart();
 }
 function renderAltChart(){
@@ -1310,6 +1270,28 @@ function renderAltChart(){
         y:{ticks:{color:'#50606e',font:{size:10},callback:v=>v+'m'},grid:{color:'rgba(255,255,255,0.04)'}}
       }
     }
+  });
+}
+
+function renderPassage(){
+  const tbody=document.getElementById('passage-tbody');
+  if(!tbody||!gpxLoaded)return;
+  let cum=0;tbody.innerHTML='';
+  RAVITOS.forEach((rv,i)=>{
+    if(i>0&&SEGS[i-1])cum+=segTime(SEGS[i-1]);
+    const ele=getEle(rv.km);
+    const seg=i>0?SEGS[i-1]:null;
+    tbody.innerHTML+=`<tr>
+      <td><strong>${rv.name}</strong><br><span style="font-size:11px;color:var(--text3)">${rv.loc||''}</span></td>
+      <td><strong style="color:var(--text1)">${rv.km}</strong></td>
+      <td>${ele}m</td>
+      <td style="color:var(--accent2)">${seg?'+'+seg.dp+'m':'—'}</td>
+      <td style="color:var(--accent)">${seg?'-'+seg.dm+'m':'—'}</td>
+      <td><strong style="color:var(--text1)">${i===0?'Départ':hms(cum)}</strong></td>
+      <td style="color:var(--text3)">${seg?hms(segTime(seg)):'—'}</td>
+      <td>${seg?((segTime(seg)/(seg.k1-seg.k0))*60).toFixed(1)+' mn/km':'—'}</td>
+      <td>${rv.assist?'<span class="badge badge-green">Assistance</span>':'—'}</td>
+    </tr>`;
   });
 }
 
@@ -1581,103 +1563,6 @@ function renderTerrain(){
       scales:{y:{ticks:{color:'#50606e',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#50606e',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}}}}
   });
 }
-// ===== PLAN DE COURSE (calqué sur coureur de référence) =====
-function populatePassageRunnerSelect(){
-  const sel = document.getElementById('passage-runner-ref');
-  if(!sel) return;
-  const current = sel.value;
-  sel.innerHTML = '<option value="">— Choisir un coureur —</option>' +
-    RUNNERS.map(r=>`<option value="${r.id}" ${r.id==current?'selected':''}>${r.name} · ${r.race} · ${r.chrono}h</option>`).join('');
-}
-
-function renderPassageTable(){
-  const tbody = document.getElementById('passage-tbody');
-  const label = document.getElementById('passage-runner-label');
-  if(!tbody) return;
-  if(!gpxLoaded||!SEGS.length){
-    tbody.innerHTML='<tr><td colspan="10" style="color:var(--text3);text-align:center">Importez un GPX et définissez vos ravitos.</td></tr>';
-    return;
-  }
-
-  const runnerId = +document.getElementById('passage-runner-ref')?.value;
-  const scen = document.getElementById('passage-scen')?.value || 'nom';
-  const startH = parseTime(document.getElementById('p-start')?.value||'06:00');
-  const cs = +document.getElementById('climb-range')?.value || 3.5;
-  const ds = +document.getElementById('desc-range')?.value || 3;
-
-  let paces, chronoH, runnerName;
-
-  if(runnerId){
-    const runner = RUNNERS.find(r=>r.id===runnerId);
-    if(!runner){ tbody.innerHTML=''; return; }
-    runnerName = runner.name;
-    paces = getPaces(runner, scen); // allures par segment en mn/km
-    chronoH = scen==='opt'?runner.best:scen==='pes'?runner.worst:runner.chrono;
-    if(label) label.textContent = `Calqué sur ${runner.name} · ${scen} · ${chronoH}h`;
-    // Mettre à jour le chrono
-    const chronoEl = document.getElementById('p-chrono');
-    if(chronoEl) chronoEl.value = chronoH;
-  } else {
-    // Pas de coureur — calcul depuis chrono objectif
-    const t = +document.getElementById('p-chrono')?.value || 16;
-    chronoH = t;
-    const bl = t / totalDist();
-    const cf = 1+(0.3*(5-cs)/4);
-    const df = 1+(0.2*(5-ds)/4);
-    paces = SEGS.map(s => {
-      const st = (s.k1-s.k0)*bl + (s.dp/1000)*cf*0.8 + (s.dm/1000)*df*0.25;
-      return +((st/(s.k1-s.k0))*60).toFixed(1);
-    });
-    if(label) label.textContent = `Estimation personnelle · ${hms(chronoH)}`;
-    if(document.getElementById('p-idx')) document.getElementById('p-idx').value = 650;
-  }
-
-  let cum = 0;
-  tbody.innerHTML = '';
-  RAVITOS.forEach((rv, i) => {
-    const seg = i > 0 ? SEGS[i-1] : null;
-    const ele = getEle(rv.km);
-    let segT = 0;
-    if(seg && paces){
-      const pace = paces[i-1] || 0;
-      segT = pace > 0 ? (seg.k1-seg.k0) * pace / 60 : segTime(seg);
-    }
-    if(i > 0) cum += segT;
-
-    tbody.innerHTML += `<tr>
-      <td><strong>${rv.name}</strong><br><span style="font-size:11px;color:var(--text3)">${rv.loc||''}</span></td>
-      <td><strong style="color:var(--text1)">${rv.km}</strong></td>
-      <td>${ele}m</td>
-      <td style="color:var(--accent2)">${seg?'+'+seg.dp+'m':'—'}</td>
-      <td style="color:var(--accent)">${seg?'-'+seg.dm+'m':'—'}</td>
-      <td style="color:var(--text3)">${seg?(seg.k1-seg.k0)+'km':'—'}</td>
-      <td><strong style="color:var(--text1)">${i===0?'Départ':hms(cum)}</strong><br><span style="font-size:10px;color:var(--text3)">${i===0?addH(startH,0):addH(startH,cum)}</span></td>
-      <td style="color:var(--text3)">${seg&&segT>0?hms(segT):'—'}</td>
-      <td>${seg&&paces&&paces[i-1]?paces[i-1]+' mn/km':'—'}</td>
-      <td>${rv.assist?'<span class="badge badge-green">Assistance</span>':'—'}</td>
-    </tr>`;
-  });
-}
-
-function applyPassageToNutrition(){
-  // Met à jour le chrono et les paramètres utilisés dans la nutrition
-  const chronoEl = document.getElementById('p-chrono');
-  if(chronoEl && +chronoEl.value > 0){
-    showSection('nutrition');
-    showSubsecNutri('plan');
-  }
-}
-
-function segTime(s){
-  // Utilise les paces du coureur de référence si disponible, sinon calcul générique
-  const t=+document.getElementById('p-chrono')?.value||16;
-  const bl=t/totalDist();
-  const cs=+document.getElementById('climb-range')?.value||+document.getElementById('climb-out')?.textContent||3.5;
-  const ds=+document.getElementById('desc-range')?.value||+document.getElementById('desc-out')?.textContent||3;
-  const cf=1+(0.3*(5-cs)/4);const df=1+(0.2*(5-ds)/4);
-  return((s.k1-s.k0)*bl+(s.dp/1000)*cf*0.8+(s.dm/1000)*df*0.25);
-}
-
 function setPlanScen(s,btn){
   planScen=s;
   ['ps-nom','ps-opt','ps-pes'].forEach(id=>{const b=document.getElementById(id);b.style.background='';b.style.color='';b.style.borderColor='';});
@@ -1726,129 +1611,19 @@ let PRODUCTS = [
 let NUTRI_PLAN = {};
 
 function showSubsecNutri(id){
+  // Désactiver tous les sous-onglets nutrition
   document.querySelectorAll('#sec-nutrition .sec-tab').forEach((b,i)=>{
-    b.classList.toggle('active',['plan','mon-plan','produits','refs'][i]===id);
+    b.classList.toggle('active',['plan','produits','refs'][i]===id);
   });
   document.querySelectorAll('#sec-nutrition .subsec').forEach(s=>s.classList.remove('active'));
   const target = document.getElementById('nutri-'+id);
   if(target) target.classList.add('active');
   if(id==='plan') renderNutriPlan();
-  if(id==='mon-plan') renderMonPlan();
   if(id==='produits') renderProductsList();
   if(id==='refs') renderNutriRefs();
 }
 
-function resetNutrition(){
-  if(!confirm('Remettre à zéro tout le plan nutritionnel ? Les produits de la base sont conservés.')) return;
-  NUTRI_PLAN = {};
-  renderNutriPlan();
-}
-
-function renderMonPlan(){
-  const el = document.getElementById('nutri-mon-plan-content');
-  if(!el) return;
-  if(!gpxLoaded||!SEGS.length){
-    el.innerHTML='<div style="padding:2rem;text-align:center;color:var(--text3);font-size:13px">Importez un GPX et planifiez la nutrition pour voir votre plan coureur.</div>';
-    return;
-  }
-  const typeEmoji={gel:'⚡',barre:'🍫',puree:'🥣',boisson:'💧',bonbon:'🍬',patisserie:'🧇',fruit:'🍑',sel:'🧂',autre:'📦'};
-  const startH = parseTime(document.getElementById('a-start')?.value||'06:00');
-  const eRef = +document.getElementById('n-eau')?.value||700;
-  const bags = computeBags();
-  let cumTime = 0;
-  let html = '';
-
-  bags.forEach((bag, bi) => {
-    const isDepart = bag.type==='depart';
-    const accentCol = isDepart ? '#00d4aa' : '#f5a623';
-    const bagProducts = getBagProducts(bag.segIndices);
-    const segsTime = bag.segIndices.reduce((a,i)=>a+segTime(SEGS[i]),0);
-    const segsDist = bag.segIndices.reduce((a,i)=>a+(SEGS[i].k1-SEGS[i].k0),0);
-    const eauL = (eRef*segsTime/1000).toFixed(1);
-
-    html += `<div style="margin-bottom:20px">
-      <!-- Titre sac -->
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div style="font-size:28px">${isDepart?'🎒':'🔄'}</div>
-        <div>
-          <div style="font-family:var(--font-display);font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:${accentCol}">${bag.label}</div>
-          <div style="font-size:11px;color:var(--text3)">${bag.from} → ${bag.to} · ${segsDist}km · ${hms(segsTime)} · 💧 ${eauL}L à boire</div>
-        </div>
-      </div>
-
-      ${bag.segIndices.map(si => {
-        const seg = SEGS[si];
-        const plan = NUTRI_PLAN[si]||[];
-        const st = segTime(seg);
-        const segCumStart = (() => { let c=0; for(let x=0;x<si;x++) c+=segTime(SEGS[x]); return c; })();
-        const rv1 = RAVITOS[si+1];
-        const totalItems = plan.reduce((a,e)=>a+e.qty,0);
-        const segG = plan.reduce((a,e)=>{const p=PRODUCTS.find(x=>x.id===e.id);return a+(p?p.gluc*e.qty:0);},0);
-        const eauSeg = (eRef*st/1000).toFixed(1);
-
-        // Construire prises avec timing
-        const intervalMin = totalItems>0?Math.max(20,Math.round(st*60/totalItems)):0;
-        const prises = [];
-        let offset = 15;
-        plan.forEach(e=>{
-          const pr=PRODUCTS.find(p=>p.id===e.id);
-          if(!pr)return;
-          const isFrequent=['gel','bonbon','sel'].includes(pr.type);
-          const intv=isFrequent?Math.max(20,intervalMin*0.8):intervalMin;
-          for(let q=0;q<e.qty;q++){
-            const atMin=Math.min(offset+q*intv,st*60-5);
-            prises.push({pr,atMin:Math.round(atMin),absH:startH+segCumStart+atMin/60});
-            offset+=intv;
-          }
-        });
-        prises.sort((a,b)=>a.atMin-b.atMin);
-
-        return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:8px">
-          <!-- Header segment -->
-          <div style="padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-            <div style="font-weight:600;font-size:13px;color:var(--text1)">${seg.from} <span style="color:var(--text3)">→</span> ${seg.to}</div>
-            <div style="display:flex;gap:8px;align-items:center;font-size:11px;color:var(--text3)">
-              <span>${seg.k1-seg.k0}km</span>
-              <span>${hms(st)}</span>
-              <span style="color:#0099ff">💧${eauSeg}L</span>
-              ${segG>0?`<span style="color:var(--accent)">🍬 ${segG}g gluc</span>`:''}
-              ${rv1?.assist?`<span style="color:var(--warn)">▲ Assistance</span>`:''}
-              <span style="color:var(--text3)">${addH(startH,segCumStart)} → ${addH(startH,segCumStart+st)}</span>
-            </div>
-          </div>
-          <!-- Prises -->
-          <div style="padding:10px 12px">
-            ${!plan.length
-              ? `<div style="font-size:12px;color:var(--danger)">⚠ Rien de planifié sur ce segment</div>`
-              : `<div style="display:flex;flex-direction:column;gap:5px">
-                  ${prises.map((p2,pi)=>{
-                    const emoji=typeEmoji[p2.pr.type]||'📦';
-                    const isFirst=pi===0;
-                    const timing=isFirst?'Dès le départ':p2.atMin<60?`+${p2.atMin}min`:`+${Math.floor(p2.atMin/60)}h${String(p2.atMin%60).padStart(2,'0')}`;
-                    return `<div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)${pi===prises.length-1?';border-bottom:none':''}">
-                      <span style="font-size:16px;flex-shrink:0">${emoji}</span>
-                      <span style="flex:1;color:var(--text1)">${p2.pr.name}</span>
-                      <span style="font-size:10px;color:var(--text3);flex-shrink:0">G:${p2.pr.gluc}g Na:${p2.pr.sod}mg</span>
-                      <span style="color:${isFirst?'var(--accent)':'var(--text3)'};font-size:11px;flex-shrink:0;min-width:55px;text-align:right">${timing}</span>
-                      <span style="color:var(--text3);font-size:10px;flex-shrink:0;min-width:40px;text-align:right">${addH(startH,segCumStart+p2.atMin/60)}</span>
-                    </div>`;
-                  }).join('')}
-                </div>`
-            }
-          </div>
-        </div>`;
-      }).join('')}
-
-      ${bi<bags.length-1?`<div style="display:flex;align-items:center;gap:8px;margin:8px 0 4px 16px">
-        <div style="width:1px;height:20px;background:var(--border)"></div>
-        <span style="font-size:11px;color:var(--text3)">→ Prochain sac au point d'assistance</span>
-      </div>`:''}
-    </div>`;
-    cumTime += segsTime;
-  });
-
-  el.innerHTML = html || '<div style="padding:1rem;color:var(--text3);font-size:13px">Planifiez des produits dans l\'onglet "Plan par étape".</div>';
-}
+function renderNutri(){ renderNutriPlan(); }
 
 function renderNutriPlan(){
   const el = document.getElementById('nutri-plan-content');
@@ -1863,14 +1638,13 @@ function renderNutriPlan(){
   const gRef = +document.getElementById('n-gluc')?.value || 55;
   const pRef = +document.getElementById('n-prot')?.value || 5;
   const sRef = +document.getElementById('n-sod')?.value || 1500;
-  const eRef = +document.getElementById('n-eau')?.value || 700;
 
   // Calcul totaux
-  let totalNeedG=0, totalNeedP=0, totalNeedS=0, totalNeedE=0;
+  let totalNeedG=0, totalNeedP=0, totalNeedS=0;
   let totalCurrG=0, totalCurrP=0, totalCurrS=0;
   SEGS.forEach((seg,i)=>{
     const st=segTime(seg);
-    totalNeedG+=Math.round(gRef*st); totalNeedP+=Math.round(pRef*st); totalNeedS+=Math.round(sRef*st); totalNeedE+=Math.round(eRef*st);
+    totalNeedG+=Math.round(gRef*st); totalNeedP+=Math.round(pRef*st); totalNeedS+=Math.round(sRef*st);
     const plan=NUTRI_PLAN[i]||[];
     totalCurrG+=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.gluc*e.qty:0);},0);
     totalCurrP+=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.prot*e.qty:0);},0);
@@ -1891,17 +1665,16 @@ function renderNutriPlan(){
     <div style="height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;margin-bottom:12px">
       <div style="height:100%;width:${globalPct}%;background:${globalColor};border-radius:4px;transition:width .4s"></div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
       ${miniGauge('Glucides',totalCurrG,totalNeedG,'g')}
       ${miniGauge('Protéines',totalCurrP,totalNeedP,'g')}
       ${miniGauge('Sodium',totalCurrS,totalNeedS,'mg')}
-      ${miniGaugeEau(totalNeedE)}
     </div>
   </div>`;
 
   SEGS.forEach((seg, i) => {
     const st = segTime(seg);
-    const needG=Math.round(gRef*st), needP=Math.round(pRef*st), needS=Math.round(sRef*st), needE=Math.round(eRef*st);
+    const needG=Math.round(gRef*st), needP=Math.round(pRef*st), needS=Math.round(sRef*st);
     const plan = NUTRI_PLAN[i] || [];
     const currG=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.gluc*e.qty:0);},0);
     const currP=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.prot*e.qty:0);},0);
@@ -1927,11 +1700,10 @@ function renderNutriPlan(){
           <button class="btn btn-sm btn-accent" onclick="openProductPicker(${i})">+ Produits</button>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px">
         ${gaugeBlock('Glucides','G',currG,needG,'g',cG)}
         ${gaugeBlock('Protéines','P',currP,needP,'g',cP)}
         ${gaugeBlock('Sodium','S',currS,needS,'mg',cS)}
-        ${gaugeBlockEau(needE)}
       </div>
       <div id="nutri-products-seg-${i}" style="min-height:24px">${renderSegProducts(i)}</div>
     </div>`;
@@ -1939,32 +1711,7 @@ function renderNutriPlan(){
   el.innerHTML = html;
 }
 
-function miniGaugeEau(needE){
-  const eRef = +document.getElementById('n-eau')?.value || 700;
-  return `<div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-      <span style="font-size:11px;color:var(--text3)">Eau</span>
-      <span style="font-size:11px;font-weight:600;color:#0099ff">${(needE/1000).toFixed(1)}L <span style="opacity:.7">(à boire)</span></span>
-    </div>
-    <div style="height:4px;background:var(--bg4);border-radius:2px;overflow:hidden">
-      <div style="height:100%;width:100%;background:#0099ff44;border-radius:2px"></div>
-    </div>
-  </div>`;
-}
-
-function gaugeBlockEau(needE){
-  const liters = (needE/1000).toFixed(1);
-  return `<div style="background:var(--bg3);border-radius:var(--r);padding:10px 12px">
-    <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-      <span style="font-size:11px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px">Eau</span>
-      <span style="font-size:14px">💧</span>
-    </div>
-    <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:5px">
-      <div style="height:100%;width:100%;background:rgba(0,153,255,0.35);border-radius:3px"></div>
-    </div>
-    <div style="font-size:13px;font-weight:600;color:#0099ff">${liters}L <span style="font-size:10px;color:var(--text3)">à boire</span></div>
-  </div>`;
-}
+function miniGauge(label, curr, need, unit){
   const pct = need>0 ? Math.round(curr/need*100) : 0;
   const c = pct>120?'#e8445a':pct>=100?'#00d4aa':pct>=60?'#f5a623':'#e8445a';
   return `<div>
@@ -2026,8 +1773,7 @@ function renderPickerModal(){
   const gRef=+document.getElementById('n-gluc')?.value||55;
   const pRef=+document.getElementById('n-prot')?.value||5;
   const sRef=+document.getElementById('n-sod')?.value||1500;
-  const eRef=+document.getElementById('n-eau')?.value||700;
-  const needG=Math.round(gRef*st), needP=Math.round(pRef*st), needS=Math.round(sRef*st), needE=Math.round(eRef*st);
+  const needG=Math.round(gRef*st), needP=Math.round(pRef*st), needS=Math.round(sRef*st);
   const plan = NUTRI_PLAN[segIdx]||[];
   const currG=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.gluc*e.qty:0);},0);
   const currP=plan.reduce((a,e)=>{const pr=PRODUCTS.find(p=>p.id===e.id);return a+(pr?pr.prot*e.qty:0);},0);
@@ -2054,13 +1800,6 @@ function renderPickerModal(){
         ${pickerGaugeRow(currG,needG,'g','Glucides','#00d4aa')}
         ${pickerGaugeRow(currP,needP,'g','Protéines','#0099ff')}
         ${pickerGaugeRow(currS,needS,'mg','Sodium','#f5a623')}
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:0">
-          <span style="font-size:11px;color:var(--text3);width:60px;flex-shrink:0;font-family:var(--font-display);text-transform:uppercase;letter-spacing:.3px">Eau</span>
-          <div style="flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden">
-            <div style="height:100%;width:100%;background:rgba(0,153,255,0.3);border-radius:3px"></div>
-          </div>
-          <span style="font-size:11px;font-weight:600;color:#0099ff;min-width:70px;text-align:right">~${(needE/1000).toFixed(1)}L à boire</span>
-        </div>
       </div>
 
       <!-- Produits sélectionnés -->
@@ -2231,108 +1970,157 @@ function renderAssistanceBags(){
   const el = document.getElementById('assist-bags-content');
   if(!el) return;
   if(!gpxLoaded||!SEGS.length){
-    el.innerHTML='<div style="padding:2rem;text-align:center;color:var(--text3);font-size:13px">Importez un GPX, définissez vos ravitos et planifiez la nutrition pour générer les sacs.</div>';
+    el.innerHTML='<div style="padding:2rem;text-align:center;color:var(--text3);font-size:13px">Importez un GPX, définissez vos ravitos et planifiez la nutrition pour voir les sacs.</div>';
     return;
   }
   const bags = computeBags();
-  // L'assistance ne gère que les sacs de rechargement (pas le sac de départ)
-  const assistBags = bags.filter(b=>b.type==='assistance');
-  const typeEmoji={gel:'⚡',barre:'🍫',puree:'🥣',boisson:'💧',bonbon:'🍬',patisserie:'🧇',fruit:'🍑',sel:'🧂',autre:'📦'};
-  const eRef = +document.getElementById('n-eau')?.value||700;
+  if(!bags.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:1rem 0">Aucun sac à préparer.</div>';return;}
 
-  if(!assistBags.length){
-    el.innerHTML=`<div style="padding:2rem;text-align:center;color:var(--text3);font-size:13px">
-      <div style="font-size:32px;margin-bottom:8px">✅</div>
-      Aucun point d'assistance défini — cochez "Assistance" sur vos ravitos dans l'onglet Course GPX.
-    </div>`;
-    return;
-  }
+  const typeEmoji={gel:'⚡',barre:'🍫',puree:'🥣',boisson:'💧',bonbon:'🍬',patisserie:'🧇',fruit:'🍑',sel:'🧂',autre:'📦'};
 
   let html = '';
-  assistBags.forEach((bag, bi) => {
+  bags.forEach((bag, bi)=>{
     const products = getBagProducts(bag.segIndices);
     const nutri = getBagNutrition(bag.segIndices);
-    const segsTime = bag.segIndices.reduce((a,i)=>a+segTime(SEGS[i]),0);
-    const segsDist = bag.segIndices.reduce((a,i)=>a+(SEGS[i].k1-SEGS[i].k0),0);
-    const eauL = (eRef*segsTime/1000).toFixed(1);
     const isEmpty = products.length===0;
+    const segsDist = bag.segIndices.reduce((a,i)=>a+(SEGS[i].k1-SEGS[i].k0),0);
+    const segsTime = bag.segIndices.reduce((a,i)=>a+segTime(SEGS[i]),0);
+    const isDepart = bag.type==='depart';
+    const accentCol = isDepart ? '#00d4aa' : '#f5a623';
 
-    html += `<div style="margin-bottom:20px">
-      <!-- Header sac -->
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <div style="width:3px;height:44px;background:#f5a623;border-radius:2px;flex-shrink:0"></div>
-        <div style="flex:1">
-          <div style="font-family:var(--font-display);font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#f5a623">${bag.label}</div>
-          <div style="font-size:11px;color:var(--text3)">À remettre au coureur à <strong style="color:var(--text1)">${bag.from}</strong> · couvre ${segsDist}km · ${hms(segsTime)}</div>
+    html += `<div style="margin-bottom:16px">
+      <!-- Étiquette sac -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:3px;height:40px;background:${accentCol};border-radius:2px;flex-shrink:0"></div>
+        <div>
+          <div style="font-family:var(--font-display);font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:${accentCol}">${bag.label}</div>
+          <div style="font-size:11px;color:var(--text3)">${bag.from} → ${bag.to} · ${segsDist}km · ${hms(segsTime)}</div>
         </div>
       </div>
 
-      <div style="background:var(--bg2);border:1px solid rgba(245,166,35,.25);border-radius:var(--rl);padding:14px 16px">
-        ${isEmpty
-          ? `<div style="text-align:center;padding:1rem;color:var(--text3);font-size:13px">
-              <div style="font-size:28px;margin-bottom:6px">🎒</div>
-              Aucun produit planifié — le coureur n'a rien prévu pour ce tronçon.<br>
-              <button class="btn btn-sm btn-accent" style="margin-top:8px" onclick="showSection('nutrition')">Planifier →</button>
-            </div>`
-          : `<!-- Contenu du sac -->
-            <div style="margin-bottom:12px">
-              <div style="font-size:11px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Contenu à préparer</div>
-              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
-                ${products.map(e=>{
-                  const pr=PRODUCTS.find(p=>p.id===e.id);
-                  if(!pr) return '';
-                  const emoji=typeEmoji[pr.type]||'📦';
-                  return `<div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;min-width:140px">
-                    <span style="font-size:22px">${emoji}</span>
-                    <div>
-                      <div style="font-size:12px;font-weight:500;color:var(--text1)">${pr.name}</div>
-                      <div style="font-size:10px;color:var(--text3)">${pr.brand}</div>
-                      <div style="font-size:13px;font-weight:700;color:var(--accent);font-family:var(--font-display)">× ${e.qty}</div>
-                    </div>
+      <!-- Visuel sac -->
+      <div style="background:var(--bg2);border:1px solid ${isEmpty?'var(--border)':accentCol+'44'};border-radius:var(--rl);padding:14px 16px">
+
+        ${isEmpty ? `<div style="text-align:center;padding:1rem;color:var(--text3);font-size:13px">
+          <div style="font-size:32px;margin-bottom:8px">🎒</div>
+          Aucun produit planifié pour ce tronçon.<br>
+          <button class="btn btn-sm btn-accent" style="margin-top:8px" onclick="showSection('nutrition');showSubsecNutri('plan')">Planifier la nutrition →</button>
+        </div>` : `
+
+        <!-- Illustration sac -->
+        <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px">
+          <div style="font-size:40px;flex-shrink:0">🎒</div>
+          <div style="flex:1;min-width:200px">
+            <div style="font-size:12px;font-weight:500;color:var(--text1);margin-bottom:8px">${products.length} produit(s) · ${nutri.g}g glucides · ${nutri.p}g protéines · ${nutri.s}mg sodium</div>
+            <!-- Produits en grille visuelle -->
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              ${products.map(e=>{
+                const pr=PRODUCTS.find(p=>p.id===e.id);
+                if(!pr) return '';
+                const emoji=typeEmoji[pr.type]||'📦';
+                return Array.from({length:e.qty}).map(()=>`
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:6px 8px;min-width:54px;text-align:center">
+                    <span style="font-size:20px">${emoji}</span>
+                    <span style="font-size:9px;color:var(--text2);line-height:1.2;max-width:54px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${pr.name.split(' ').slice(0,2).join(' ')}</span>
+                    <span style="font-size:9px;color:var(--accent)">G:${pr.gluc}g</span>
+                  </div>`).join('');
+              }).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- Bilan nutritionnel du sac -->
+        <div style="border-top:1px solid var(--border);padding-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+          ${miniBagNutri('Glucides',nutri.g,'g','#00d4aa')}
+          ${miniBagNutri('Protéines',nutri.p,'g','#0099ff')}
+          ${miniBagNutri('Sodium',nutri.s,'mg','#f5a623')}
+        </div>
+
+        <!-- Récap consommation par segment -->
+        <div style="border-top:1px solid var(--border);padding-top:12px">
+          <div style="font-size:11px;color:var(--text3);font-family:var(--font-display);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Ce que je mange — segment par segment</div>
+          ${bag.segIndices.map(si=>{
+            const seg=SEGS[si];
+            const plan=NUTRI_PLAN[si]||[];
+            const st=segTime(seg);
+            const rv1=RAVITOS[si+1];
+            const totalItems=plan.reduce((a,e)=>a+e.qty,0);
+            const segG=plan.reduce((a,e)=>{const p=PRODUCTS.find(x=>x.id===e.id);return a+(p?p.gluc*e.qty:0);},0);
+            if(!plan.length) return `<div style="padding:8px 10px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);margin-bottom:6px;font-size:12px;color:var(--text3)">
+              <span style="font-weight:500;color:var(--text2)">${seg.from} → ${seg.to}</span> · ${seg.k1-seg.k0}km · ${hms(st)} · <span style="color:var(--danger)">Rien de planifié</span>
+            </div>`;
+
+            // Construire les prises avec horaires
+            const startH2=parseTime(document.getElementById('a-start')?.value||'06:00');
+            let cumSeg=0;
+            for(let x=0;x<si;x++) cumSeg+=segTime(SEGS[x]);
+            const intervalMin=totalItems>0?Math.max(20,Math.round(st*60/totalItems)):0;
+            const prises=[];
+            let offset=15;
+            plan.forEach(e=>{
+              const pr=PRODUCTS.find(p=>p.id===e.id);
+              if(!pr)return;
+              const isFrequent=['gel','bonbon','sel'].includes(pr.type);
+              const intv=isFrequent?Math.max(20,intervalMin*0.8):intervalMin;
+              for(let q=0;q<e.qty;q++){
+                const atMin=Math.min(offset+q*intv,st*60-5);
+                prises.push({pr,atMin:Math.round(atMin),absH:startH2+cumSeg+atMin/60});
+                offset+=intv;
+              }
+            });
+            prises.sort((a,b)=>a.atMin-b.atMin);
+
+            return `<div style="padding:10px 12px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);margin-bottom:6px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px">
+                <div style="font-weight:600;font-size:12px;color:var(--text1)">${seg.from} → ${seg.to}</div>
+                <div style="font-size:11px;color:var(--text3)">${seg.k1-seg.k0}km · ${hms(st)} · G:${segG}g · ${totalItems} unité(s)${rv1?.assist?` · <span style="color:var(--warn)">▲ Assistance</span>`:''}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:5px">
+                ${prises.map((p2,pi)=>{
+                  const emoji=typeEmoji[p2.pr.type]||'📦';
+                  const isFirst=pi===0;
+                  const timing=isFirst?'Dès le départ':p2.atMin<60?`+${p2.atMin}min`:`+${Math.floor(p2.atMin/60)}h${String(p2.atMin%60).padStart(2,'0')}`;
+                  return `<div style="display:flex;align-items:center;gap:8px;font-size:12px">
+                    <span style="font-size:16px;flex-shrink:0">${emoji}</span>
+                    <span style="flex:1;color:var(--text1)">${p2.pr.name}</span>
+                    <span style="color:${isFirst?'var(--accent)':'var(--text3)'};font-size:11px;flex-shrink:0">${timing}</span>
+                    <span style="color:var(--text3);font-size:10px;flex-shrink:0">${addH(startH2,cumSeg+p2.atMin/60)}</span>
                   </div>`;
                 }).join('')}
               </div>
-            </div>
-
-            <!-- Bilan nutritionnel -->
-            <div style="border-top:1px solid var(--border);padding-top:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-              ${miniBagNutri('Glucides',nutri.g,'g','#00d4aa')}
-              ${miniBagNutri('Protéines',nutri.p,'g','#0099ff')}
-              ${miniBagNutri('Sodium',nutri.s,'mg','#f5a623')}
-              ${miniBagNutri('Eau',eauL,'L','#0099ff')}
-            </div>`
-        }
+            </div>`;
+          }).join('')}
+        </div>`}
       </div>
+
+      ${bi<bags.length-1?`<div style="display:flex;align-items:center;gap:8px;margin:10px 0;padding-left:16px">
+        <div style="width:1px;height:24px;background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--text3)">→ Course jusqu'au prochain point d'assistance</span>
+      </div>`:''}
     </div>`;
   });
 
-  // Récap liste de courses complète pour l'assistance
-  const assistProducts = {};
-  assistBags.forEach(bag=>{
-    bag.segIndices.forEach(i=>{
-      (NUTRI_PLAN[i]||[]).forEach(e=>{
-        if(!assistProducts[e.id]) assistProducts[e.id]={id:e.id,qty:0};
-        assistProducts[e.id].qty+=e.qty;
-      });
+  // Récap liste de courses complète
+  const allProducts = {};
+  SEGS.forEach((_,i)=>{
+    (NUTRI_PLAN[i]||[]).forEach(e=>{
+      if(!allProducts[e.id]) allProducts[e.id]={id:e.id,qty:0};
+      allProducts[e.id].qty+=e.qty;
     });
   });
-  const totalList = Object.values(assistProducts).filter(e=>e.qty>0);
+  const totalList = Object.values(allProducts).filter(e=>e.qty>0);
   if(totalList.length){
-    html += `<div class="card" style="border-color:rgba(245,166,35,.3);margin-top:4px">
-      <div style="font-family:var(--font-display);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-bottom:10px;color:#f5a623">
-        🛒 Liste de courses — assistance uniquement
-      </div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Produits à acheter pour alimenter tous les points d'assistance.</div>
+    html += `<div class="card" style="margin-top:8px;border-color:rgba(127,119,221,.4)">
+      <div style="font-family:var(--font-display);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-bottom:10px;color:#7f77dd">Liste de courses complète</div>
       <div style="display:grid;gap:6px">
         ${totalList.map(e=>{
           const pr=PRODUCTS.find(p=>p.id===e.id);
           if(!pr) return '';
           const emoji=typeEmoji[pr.type]||'📦';
-          return `<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)">
+          return `<div style="display:flex;align-items:center;gap:8px;font-size:13px">
             <span style="font-size:16px">${emoji}</span>
             <span style="color:var(--text1);flex:1">${pr.name}</span>
-            <span style="font-size:10px;color:var(--text3)">${pr.brand}</span>
-            <span style="font-weight:700;color:#f5a623;font-family:var(--font-display);font-size:15px">× ${e.qty}</span>
+            <span style="font-weight:700;color:var(--accent);font-family:var(--font-display);font-size:15px">×${e.qty}</span>
           </div>`;
         }).join('')}
       </div>
@@ -2450,14 +2238,13 @@ function renderNutriRefs(){
   const g = +document.getElementById('n-gluc')?.value||55;
   const p = +document.getElementById('n-prot')?.value||5;
   const s = +document.getElementById('n-sod')?.value||1500;
-  const e = +document.getElementById('n-eau')?.value||700;
   const el = document.getElementById('nutri-totals');
   if(!el) return;
   el.innerHTML=`
     <div class="metric"><div class="metric-label">Glucides totaux</div><div class="metric-val">${Math.round(g*t)}<span class="metric-unit">g</span></div></div>
     <div class="metric"><div class="metric-label">Protéines totales</div><div class="metric-val">${Math.round(p*t)}<span class="metric-unit">g</span></div></div>
     <div class="metric"><div class="metric-label">Sodium total</div><div class="metric-val">${Math.round(s*t)}<span class="metric-unit">mg</span></div></div>
-    <div class="metric"><div class="metric-label">Eau totale</div><div class="metric-val">${(e*t/1000).toFixed(1)}<span class="metric-unit">L</span></div></div>`;
+    <div class="metric"><div class="metric-label">Durée course</div><div class="metric-val">${hms(t)}</div></div>`;
 }
 
 // ===== ASSISTANCE =====
@@ -2488,7 +2275,7 @@ function renderTimeline(){
           <div style="font-weight:500;font-size:13px;color:var(--text1)">${ASSIST_PTS[i-1].name} → ${p.name}</div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
             <span style="font-size:11px;color:var(--text3)">${p.driveMin} min · Voiture</span>
-            <a href="https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${ASSIST_PTS[i-1].lat},${ASSIST_PTS[i-1].lon};${p.lat},${p.lon}" target="_blank" class="maps-btn">OpenStreetMap →</a>
+            <a href="https://www.google.com/maps/dir/${ASSIST_PTS[i-1].lat},${ASSIST_PTS[i-1].lon}/${p.lat},${p.lon}" target="_blank" class="maps-btn">Maps →</a>
           </div>
         </div></div>`;
     }
@@ -2535,98 +2322,22 @@ function toggleCheck(k,pid,total,el){
 }
 function checkAllP(pid,total){for(let i=0;i<total;i++)checkStates[`${pid}-${i}`]=true;renderChecklist();}
 function renderItineraires(){
-  const el = document.getElementById('itin-content');
-  if(!el) return;
-
-  if(!gpxLoaded || !RAVITOS.length){
-    el.innerHTML='<div style="padding:2rem;text-align:center;color:var(--text3);font-size:13px">Importez un GPX et définissez des points d\'assistance pour générer les itinéraires.</div>';
-    return;
-  }
-
-  const startH = parseTime(document.getElementById('a-start')?.value||'06:00');
-  const alertBefore = +(document.getElementById('a-alert')?.value||45)/60;
-
-  // Points d'assistance uniquement
-  const assistPts = RAVITOS.filter(r=>r.assist);
-  if(!assistPts.length){
-    el.innerHTML='<div style="padding:2rem;text-align:center;color:var(--text3);font-size:13px">Aucun point d\'assistance défini. Cochez "Assistance" sur vos ravitos dans l\'onglet Course GPX.</div>';
-    return;
-  }
-
-  // Calcule les temps de passage estimés pour chaque ravito d'assistance
-  const passageTimes = {};
-  let cum = 0;
-  RAVITOS.forEach((rv,i)=>{
-    if(i>0&&SEGS[i-1]) cum+=segTime(SEGS[i-1]);
-    passageTimes[rv.name] = cum;
-  });
-
-  // Construire les tronçons depuis les coords GPX
-  const getCoordStr = (rv) => {
-    const coord = getLatLonAtKm ? getLatLonAtKm(rv.km) : null;
-    if(coord) return `${coord.lat.toFixed(4)},${coord.lon.toFixed(4)}`;
-    if(GPX_RAW_COORDS.length){
-      const target = rv.km*1000;
-      for(let i=1;i<GPX_RAW_COORDS.length;i++){
-        if(GPX_RAW_COORDS[i].dist>=target){
-          const t=(target-GPX_RAW_COORDS[i-1].dist)/(GPX_RAW_COORDS[i].dist-GPX_RAW_COORDS[i-1].dist);
-          const lat=GPX_RAW_COORDS[i-1].lat+(GPX_RAW_COORDS[i].lat-GPX_RAW_COORDS[i-1].lat)*t;
-          const lon=GPX_RAW_COORDS[i-1].lon+(GPX_RAW_COORDS[i].lon-GPX_RAW_COORDS[i-1].lon)*t;
-          return `${lat.toFixed(4)},${lon.toFixed(4)}`;
-        }
-      }
-    }
-    return null;
-  };
-
-  // Tronçons entre assistances consécutives
-  const legs = [];
-  const allPts = [RAVITOS[0], ...assistPts]; // départ + assistances
-  for(let i=0;i<allPts.length-1;i++){
-    const from=allPts[i], to=allPts[i+1];
-    const fromCoord=getCoordStr(from), toCoord=getCoordStr(to);
-    const arrivalH = passageTimes[to.name]||0;
-    const leaveH = arrivalH - alertBefore;
-    legs.push({from:from.name+(from.loc?` — ${from.loc}`:''), to:to.name+(to.loc?` — ${to.loc}`:''), fromCoord, toCoord, leaveH, arrivalH});
-  }
-
-  const legsHtml = legs.map((l,i)=>{
-    const osmUrl = l.fromCoord&&l.toCoord
-      ? `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${l.fromCoord};${l.toCoord}`
-      : null;
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)${i===legs.length-1?';border-bottom:none':''}">
-      <div>
-        <div style="font-weight:500;color:var(--text1);font-size:13px">Tronçon ${i+1} — ${l.from} → ${l.to}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">
-          Arrivée coureur estimée <strong style="color:var(--text2)">${addH(startH,l.arrivalH)}</strong> · 
-          Partir à <strong style="color:var(--warn)">${addH(startH,l.leaveH)}</strong>
-        </div>
-      </div>
-      ${osmUrl ? `<a href="${osmUrl}" target="_blank" class="maps-btn">OpenStreetMap →</a>` : '<span style="font-size:11px;color:var(--text3)">Coords GPS non disponibles</span>'}
-    </div>`;
-  }).join('');
-
-  // Circuit complet avec tous les points d'assistance
-  const allCoords = [RAVITOS[0], ...assistPts].map(getCoordStr).filter(Boolean);
-  const circuitUrl = allCoords.length >= 2
-    ? `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${allCoords.join(';')}`
-    : null;
-
-  el.innerHTML = `
-    <div class="card">
-      <div class="card-head"><span class="card-title">Tronçons routiers — ${assistPts.length} point(s) d'assistance</span></div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Horaires calculés avec une marge de <strong>${document.getElementById('a-alert')?.value||45}min</strong> avant l'arrivée estimée du coureur.</div>
-      ${legsHtml}
-    </div>
-    ${circuitUrl ? `<div class="card">
-      <div class="card-head"><span class="card-title">Circuit complet</span></div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Tous les points dans l'ordre — départ → ${assistPts.map(p=>p.name).join(' → ')}</div>
-      <a href="${circuitUrl}" target="_blank" class="maps-btn" style="font-size:13px;padding:8px 16px">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Ouvrir le circuit sur OpenStreetMap →
-      </a>
-    </div>` : ''}
-  `;
+  const startH=parseTime(document.getElementById('a-start')?.value||'06:00');
+  const alert_before=+(document.getElementById('a-alert')?.value||45)/60;
+  const legs=[
+    {from:'Les Rousses',fc:'46.4843,6.0618',to:'Morbier',tc:'46.5374,6.0161',drive:25,leaveH:ASSIST_PTS[0].nomH-ASSIST_PTS[0].driveMin/60-alert_before},
+    {from:'Morbier',fc:'46.5374,6.0161',to:'Chapelle des Bois',tc:'46.5972,6.1130',drive:35,leaveH:ASSIST_PTS[1].nomH-ASSIST_PTS[1].driveMin/60-alert_before},
+    {from:'Chapelle des Bois',fc:'46.5972,6.1130',to:'Mouthe',tc:'46.7101,6.1927',drive:28,leaveH:ASSIST_PTS[2].nomH-ASSIST_PTS[2].driveMin/60-alert_before},
+    {from:'Mouthe',fc:'46.7101,6.1927',to:'Les Rousses',tc:'46.4843,6.0618',drive:42,leaveH:ASSIST_PTS[3].nomH-ASSIST_PTS[3].driveMin/60-alert_before}
+  ];
+  document.getElementById('itin-content').innerHTML=`<div class="card"><div class="card-head"><span class="card-title">Tronçons routiers</span></div>`+
+  legs.map((l,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)${i===legs.length-1?';border-bottom:none':''}">
+    <div><div style="font-weight:500;color:var(--text1);font-size:13px">Tronçon ${i+1} — ${l.from} → ${l.to}</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:2px">Trajet : ${l.drive} min · Partir à <strong style="color:var(--warn)">${addH(startH,l.leaveH)}</strong></div></div>
+    <a href="https://www.google.com/maps/dir/${l.fc}/${l.tc}" target="_blank" class="maps-btn">Google Maps →</a>
+  </div>`).join('')+
+  `</div><div class="card"><div class="card-head"><span class="card-title">Circuit complet</span></div>
+  <a href="https://www.google.com/maps/dir/46.4843,6.0618/46.5374,6.0161/46.5972,6.1130/46.7101,6.1927/46.4843,6.0618" target="_blank" class="maps-btn" style="font-size:13px;padding:8px 16px">Circuit 4 points — Google Maps →</a></div>`;
 }
 
 // ===== INIT =====
