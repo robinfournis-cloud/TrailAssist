@@ -1061,7 +1061,7 @@ function parseGpxXml(xml,name){
     const doc=parser.parseFromString(xml,'text/xml');
     const pts=[...doc.querySelectorAll('trkpt,rtept,wpt')];
     if(!pts.length){alert('Aucun point GPS trouvé dans ce fichier GPX.');return;}
-    let dist=0,dp=0,dm=0;
+    let dist=0;
     const rawPts=[];
 
     pts.forEach((p,i)=>{
@@ -1075,29 +1075,42 @@ function parseGpxXml(xml,name){
       rawPts.push({lat,lon,ele,dist});
     });
 
-    // Calcul D+/D- avec lissage pour éliminer le bruit GPS
-    // Méthode : fenêtre glissante de 5 points + seuil minimal de 5m
-    const THRESHOLD = 5; // en mètres — ignore les variations < 5m (bruit GPS)
-    const WINDOW = 5;    // lissage sur 5 points
+    // Calcul D+/D- méthode hysteresis (identique à Garmin/Suunto)
+    // On ne compte une montée/descente que si elle dépasse un seuil continu
+    // Seuil adaptatif selon la densité de points
+    const avgDist = dist/rawPts.length; // distance moyenne entre points (mètres)
+    // Plus les points sont denses, plus le seuil doit être élevé
+    const HYST = avgDist < 5 ? 10 : avgDist < 20 ? 6 : 3;
 
-    // Lissage d'abord
-    const smoothed = rawPts.map((p,i)=>{
-      const from = Math.max(0, i-WINDOW);
-      const to = Math.min(rawPts.length-1, i+WINDOW);
-      const sum = rawPts.slice(from,to+1).reduce((a,x)=>a+x.ele,0);
-      return sum/(to-from+1);
-    });
+    let dp=0, dm=0;
+    let lastPeak=rawPts[0].ele, lastValley=rawPts[0].ele;
+    let goingUp=null; // null=indéfini, true=montée, false=descente
 
-    // Calcul D+/D- sur signal lissé avec seuil
-    let pending = 0;
-    for(let i=1;i<smoothed.length;i++){
-      const d = smoothed[i]-smoothed[i-1];
-      pending += d;
-      if(pending >= THRESHOLD){ dp+=pending; pending=0; }
-      else if(pending <= -THRESHOLD){ dm+=Math.abs(pending); pending=0; }
+    for(let i=1;i<rawPts.length;i++){
+      const ele=rawPts[i].ele;
+      const prev=rawPts[i-1].ele;
+
+      if(goingUp===null){
+        if(ele-lastValley > HYST){ goingUp=true; lastPeak=ele; }
+        else if(lastPeak-ele > HYST){ goingUp=false; lastValley=ele; }
+      } else if(goingUp){
+        if(ele>lastPeak) lastPeak=ele;
+        else if(lastPeak-ele > HYST){
+          dp+=lastPeak-lastValley;
+          lastValley=ele; goingUp=false;
+        }
+      } else {
+        if(ele<lastValley) lastValley=ele;
+        else if(ele-lastValley > HYST){
+          dm+=lastPeak-lastValley;
+          lastPeak=ele; goingUp=true;
+        }
+      }
     }
+    // Ajouter le dernier segment
+    if(goingUp===true) dp+=lastPeak-lastValley;
+    else if(goingUp===false) dm+=lastPeak-lastValley;
 
-    // Stocker les coords brutes pour la carte
     GPX_RAW_COORDS = rawPts;
     const step=Math.max(1,Math.floor(rawPts.length/300));
     GPX_PTS=rawPts.filter((_,i)=>i%step===0||i===rawPts.length-1).map(p=>({d:+(p.dist/1000).toFixed(2),e:Math.round(p.ele)}));
@@ -1106,7 +1119,7 @@ function parseGpxXml(xml,name){
       {name:'Départ',loc:'',km:0,assist:false},
       {name:'Arrivée',loc:'',km:Math.round(totalKm),assist:false}
     ];
-    gpxName=name;gpxLoaded=true;
+    gpxName=name; gpxLoaded=true;
     onGpxLoaded(name,totalKm,Math.round(dp),Math.round(dm),rawPts.length);
   }catch(err){alert('Erreur lors de la lecture du fichier GPX : '+err.message);}
 }
