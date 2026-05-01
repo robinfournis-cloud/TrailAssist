@@ -1063,6 +1063,7 @@ function parseGpxXml(xml,name){
     if(!pts.length){alert('Aucun point GPS trouvé dans ce fichier GPX.');return;}
     let dist=0,dp=0,dm=0;
     const rawPts=[];
+
     pts.forEach((p,i)=>{
       const lat=+p.getAttribute('lat'),lon=+p.getAttribute('lon');
       const eleEl=p.querySelector('ele');
@@ -1070,15 +1071,36 @@ function parseGpxXml(xml,name){
       if(i>0){
         const prev=rawPts[i-1];
         dist+=haversine(prev.lat,prev.lon,lat,lon);
-        const d=ele-prev.ele;
-        if(d>0)dp+=d;else dm+=Math.abs(d);
       }
       rawPts.push({lat,lon,ele,dist});
     });
+
+    // Calcul D+/D- avec lissage pour éliminer le bruit GPS
+    // Méthode : fenêtre glissante de 5 points + seuil minimal de 5m
+    const THRESHOLD = 5; // en mètres — ignore les variations < 5m (bruit GPS)
+    const WINDOW = 5;    // lissage sur 5 points
+
+    // Lissage d'abord
+    const smoothed = rawPts.map((p,i)=>{
+      const from = Math.max(0, i-WINDOW);
+      const to = Math.min(rawPts.length-1, i+WINDOW);
+      const sum = rawPts.slice(from,to+1).reduce((a,x)=>a+x.ele,0);
+      return sum/(to-from+1);
+    });
+
+    // Calcul D+/D- sur signal lissé avec seuil
+    let pending = 0;
+    for(let i=1;i<smoothed.length;i++){
+      const d = smoothed[i]-smoothed[i-1];
+      pending += d;
+      if(pending >= THRESHOLD){ dp+=pending; pending=0; }
+      else if(pending <= -THRESHOLD){ dm+=Math.abs(pending); pending=0; }
+    }
+
     // Stocker les coords brutes pour la carte
     GPX_RAW_COORDS = rawPts;
     const step=Math.max(1,Math.floor(rawPts.length/300));
-    GPX_PTS=rawPts.filter((_,i)=>i%step===0||i===rawPts.length-1).map(p=>({d:+( p.dist/1000).toFixed(2),e:Math.round(p.ele)}));
+    GPX_PTS=rawPts.filter((_,i)=>i%step===0||i===rawPts.length-1).map(p=>({d:+(p.dist/1000).toFixed(2),e:Math.round(p.ele)}));
     const totalKm=+(dist/1000).toFixed(1);
     RAVITOS=[
       {name:'Départ',loc:'',km:0,assist:false},
